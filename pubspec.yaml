@@ -1,5 +1,6 @@
 name: fluttering_ads
 description: A new Flutter plugin project.
+publish_to: none
 version: 0.0.1
 homepage:
 
@@ -10,12 +11,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_mobile_ads: ^2.3.0
+  huawei_ads: ^13.4.55+301
   plugin_platform_interface: ^2.0.2
+  fluttering:
+    git:
+      url: git@github.com:brennan992k/fluttering.git
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

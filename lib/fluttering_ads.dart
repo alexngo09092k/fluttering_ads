@@ -1,8 +1,8 @@
+// class FlutteringAds {
+//   Future<String?> getPlatformVersion() {
+//     return FlutteringAdsPlatform.instance.getPlatformVersion();
+//   }
+// }
 
-import 'fluttering_ads_platform_interface.dart';
-
-class FlutteringAds {
-  Future<String?> getPlatformVersion() {
-    return FlutteringAdsPlatform.instance.getPlatformVersion();
-  }
-}
+export 'advertisement/index.dart';
+export 'providers/ads_provider.dart';

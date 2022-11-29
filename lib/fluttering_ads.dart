@@ -5,4 +5,3 @@
 // }
 
 export 'advertisement/index.dart';
-export 'providers/ads_provider.dart';

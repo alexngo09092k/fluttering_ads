@@ -110,9 +110,7 @@ class GoogleAdvertisement extends AdvertisementBase {
   }
 
   @override
-  bool isSupported() {
-    return CurrentPlatform.instance.isMobile;
-  }
+  bool get isSupported => CurrentPlatform.instance.isMobile;
 
   @override
   void hideAd(AdvertisementItem adItem) {

@@ -138,9 +138,7 @@ class HuaweiAdvertisement extends AdvertisementBase {
   }
 
   @override
-  bool isSupported() {
-    return DeviceInfo.instance.android != null && (DeviceInfo.instance.android!.manufacturer ?? '').toUpperCase() == 'HUAWEI';
-  }
+  bool get isSupported => DeviceInfo.instance.android != null && (DeviceInfo.instance.android!.manufacturer ?? '').toUpperCase() == 'HUAWEI';
 
   @override
   void hideLoadedAd({required loadedAd, required AdvertisementType type}) {

@@ -6,7 +6,7 @@ import 'models/advertisement_item.dart';
 abstract class AdvertisementBase {
   AdvertisementProvider get adsProvider;
 
-  bool isSupported();
+  bool get isSupported;
 
   void showAd({required AdvertisementItem adItem});
 

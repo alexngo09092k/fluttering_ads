@@ -66,7 +66,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     for (var adView in _listAdView) {
       if (type != null && adView.type != type) return;
       if (_advertisements.containsKey(adView.data!.provider)) {
-        if (_advertisements[adView.data!.provider]!.isSupported()) {
+        if (_advertisements[adView.data!.provider]!.isSupported) {
           if (!_listAdLoadedView.containsKey(adView.type)) {
             _listAdLoadedView[adView.type] = {};
           } else if (_listAdLoadedView[adView.type]!.containsKey(adView.data!.id)) {

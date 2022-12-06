@@ -11,7 +11,7 @@ part 'ads/custom_ad.dart';
 part 'ads/interstitial_ad.dart';
 part 'ads/open_app_ad.dart';
 
-class CustomAdvertisement extends AdvertisementBase {
+class CustomAdvertisement extends BaseAdvertisement {
   @override
   AdvertisementProvider get adsProvider => AdvertisementProvider.custom;
 

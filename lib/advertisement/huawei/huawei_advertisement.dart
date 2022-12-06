@@ -14,7 +14,7 @@ part 'ads/instream_ad.dart';
 part 'ads/interstitial_ad.dart';
 part 'ads/reward_ad.dart';
 
-class HuaweiAdvertisement extends AdvertisementBase {
+class HuaweiAdvertisement extends BaseAdvertisement {
   @override
   AdvertisementProvider get adsProvider => AdvertisementProvider.huawei;
 

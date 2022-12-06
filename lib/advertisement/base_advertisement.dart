@@ -3,7 +3,7 @@ import 'models/advertisement_type.dart';
 import 'models/advertisement_provider.dart';
 import 'models/advertisement_item.dart';
 
-abstract class AdvertisementBase {
+abstract class BaseAdvertisement {
   AdvertisementProvider get adsProvider;
 
   bool get isSupported;

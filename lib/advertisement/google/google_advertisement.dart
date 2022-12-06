@@ -14,7 +14,7 @@ part 'ads/reward_ad.dart';
 part 'ads/interstitial_ad.dart';
 part 'ads/open_app_ad.dart';
 
-class GoogleAdvertisement extends AdvertisementBase {
+class GoogleAdvertisement extends BaseAdvertisement {
   @override
   AdvertisementProvider get adsProvider => AdvertisementProvider.google;
 

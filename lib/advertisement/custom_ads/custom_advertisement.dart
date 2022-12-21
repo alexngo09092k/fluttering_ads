@@ -13,7 +13,7 @@ part 'ads/open_app_ad.dart';
 
 class CustomAdvertisement extends BaseAdvertisement {
   @override
-  AdvertisementProvider get adsProvider => AdvertisementProvider.custom;
+  AdvertisementProvider get provider => AdvertisementProvider.custom;
 
   final Map<String, CustomAd> _ads = {};
 

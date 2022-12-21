@@ -16,7 +16,7 @@ part 'ads/reward_ad.dart';
 
 class HuaweiAdvertisement extends BaseAdvertisement {
   @override
-  AdvertisementProvider get adsProvider => AdvertisementProvider.huawei;
+  AdvertisementProvider get provider => AdvertisementProvider.huawei;
 
   final Map<String, dynamic> _ads = {};
 

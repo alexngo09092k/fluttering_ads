@@ -16,7 +16,7 @@ part 'ads/open_app_ad.dart';
 
 class GoogleAdvertisement extends BaseAdvertisement {
   @override
-  AdvertisementProvider get adsProvider => AdvertisementProvider.google;
+  AdvertisementProvider get provider => AdvertisementProvider.google;
 
   final Map<String, Ad> _ads = {};
 

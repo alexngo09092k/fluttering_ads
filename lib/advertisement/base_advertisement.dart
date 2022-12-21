@@ -4,7 +4,7 @@ import 'models/advertisement_provider.dart';
 import 'models/advertisement_item.dart';
 
 abstract class BaseAdvertisement {
-  AdvertisementProvider get adsProvider;
+  AdvertisementProvider get provider;
 
   bool get isSupported;
 

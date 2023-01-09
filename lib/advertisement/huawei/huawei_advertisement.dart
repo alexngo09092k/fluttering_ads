@@ -31,6 +31,9 @@ class HuaweiAdvertisement extends BaseAdvertisement {
       final double height = adItem.height ?? boxConstraints.maxHeight;
       final dontUseSize = width == double.infinity || height == double.infinity || width == 0 || height == 0;
       Debug.log("CREATE AD WIDGET SIZE $width, $height AND USED: ${!dontUseSize}");
+
+      if (dontUseSize) return const SizedBox();
+
       switch (adItem.type) {
         case AdvertisementType.native:
           return Container(
@@ -42,11 +45,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
               null,
               onLoadedAd,
               onAdFailedToLoad,
-              dontUseSize
-                  ? NativeAdType.full
-                  : height < 100
-                      ? NativeAdType.small
-                      : NativeAdType.banner,
+              height < 100 ? NativeAdType.small : NativeAdType.banner,
             ),
           );
         case AdvertisementType.roll:

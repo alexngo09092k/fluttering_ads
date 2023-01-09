@@ -12,18 +12,17 @@ enum AdvertisementViewType {
 
 class AdvertisementView {
   bool active;
-  AdvertisementItem? data;
+  AdvertisementItem data;
 
   AdvertisementView({
     this.active = false,
-    this.data,
+    required this.data,
   });
 
   AdvertisementViewType get type {
-    if (data == null) return AdvertisementViewType.none;
-    switch (data!.type) {
+    switch (data.type) {
       case AdvertisementType.banner:
-        if (data!.provider == AdvertisementProvider.huawei) return AdvertisementViewType.handle;
+        if (data.provider == AdvertisementProvider.huawei) return AdvertisementViewType.handle;
         return AdvertisementViewType.widget;
       case AdvertisementType.native:
       case AdvertisementType.fluid:
@@ -35,6 +34,8 @@ class AdvertisementView {
         return AdvertisementViewType.handle;
       case AdvertisementType.openApp:
         return AdvertisementViewType.openApp;
+      default:
+        return AdvertisementViewType.none;
     }
   }
 }

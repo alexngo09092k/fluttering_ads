@@ -30,6 +30,7 @@ class GoogleAdvertisement extends BaseAdvertisement {
       final double width = adItem.width ?? boxConstraints.maxWidth;
       final double height = adItem.height ?? boxConstraints.maxHeight;
       final dontUseSize = width == double.infinity || height == double.infinity || width == 0 || height == 0;
+      Debug.log("CREATE AD WIDGET SIZE $width, $height AND USED: ${!dontUseSize}");
       switch (adItem.type) {
         case AdvertisementType.banner:
           return Container(
@@ -42,7 +43,7 @@ class GoogleAdvertisement extends BaseAdvertisement {
                 null,
                 onLoadedAd,
                 onAdFailedToLoad,
-                dontUseSize ? AdSize.fluid : AdSize(width: width.toInt(), height: height.toInt()),
+                dontUseSize ? AdSize.banner : AdSize(width: width.toInt(), height: height.toInt()),
               ),
             ),
           );

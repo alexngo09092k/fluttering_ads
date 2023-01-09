@@ -11,7 +11,7 @@ abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate {
 
   void restore();
 
-  Widget? getAdWidget(Size size);
+  Widget? getAdWidget([Size? size]);
 
   void showAd();
 }
@@ -65,25 +65,25 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     if (!config.enable) return;
     for (var adView in _listAdView) {
       if (type != null && adView.type != type) return;
-      if (_advertisements.containsKey(adView.data!.provider)) {
-        if (_advertisements[adView.data!.provider]!.isSupported) {
+      if (_advertisements.containsKey(adView.data.provider)) {
+        if (_advertisements[adView.data.provider]!.isSupported) {
           if (!_listAdLoadedView.containsKey(adView.type)) {
             _listAdLoadedView[adView.type] = {};
-          } else if (_listAdLoadedView[adView.type]!.containsKey(adView.data!.id)) {
+          } else if (_listAdLoadedView[adView.type]!.containsKey(adView.data.id)) {
             /// Loaded ads
             return;
           }
 
           /// Not load ads yet
           if (adView.type == AdvertisementViewType.widget) {
-            final widget = _advertisements[adView.data!.provider]!.createAdWidget(adItem: adView.data!);
+            final widget = _advertisements[adView.data.provider]!.createAdWidget(adItem: adView.data);
             if (widget != null) {
               /// Added widget ads
               _listAdLoadedView[adView.type]!.addEntries([MapEntry(adView, widget)]);
             }
           } else {
-            _advertisements[adView.data!.provider]!.loadAd(
-              adItem: adView.data!,
+            _advertisements[adView.data.provider]!.loadAd(
+              adItem: adView.data,
               onLoadedAd: (loadedAd) {
                 /// Added handler ads
                 /// Added open app ads
@@ -102,7 +102,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     if (_listAdLoadedView[AdvertisementViewType.handle] != null && _listAdLoadedView[AdvertisementViewType.handle]!.isNotEmpty) {
       var loadedAd = _listAdLoadedView[AdvertisementViewType.handle]!.values.first;
       var adView = _listAdLoadedView[AdvertisementViewType.handle]!.keys.first;
-      _advertisements[adView.data!.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data!.type);
+      _advertisements[adView.data.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data.type);
       _listAdLoadedView.remove(adView);
     } else {
       restore(AdvertisementViewType.handle);
@@ -110,13 +110,24 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   }
 
   @override
-  Widget? getAdWidget(Size size) {
+  Widget? getAdWidget([Size? size]) {
     if (!config.enable) return null;
+
     if (_listAdLoadedView[AdvertisementViewType.widget] != null && _listAdLoadedView[AdvertisementViewType.widget]!.isNotEmpty) {
-      var loadedAd = _listAdLoadedView[AdvertisementViewType.widget]!.values.first;
-      var adView = _listAdLoadedView[AdvertisementViewType.widget]!.keys.first;
-      _listAdLoadedView.remove(adView);
-      return loadedAd as Widget;
+      for (var _ in _listAdLoadedView[AdvertisementViewType.widget]!.keys) {
+        if (size != null && _.data.width == size.height && _.data.height == size.height) {
+          var loadedAd = _listAdLoadedView[AdvertisementViewType.widget]![_];
+          _listAdLoadedView.remove(_);
+          return loadedAd;
+        }
+      }
+      if (size == null) {
+        var loadedAd = _listAdLoadedView[AdvertisementViewType.widget]!.values.first;
+        var adView = _listAdLoadedView[AdvertisementViewType.widget]!.keys.first;
+
+        _listAdLoadedView.remove(adView);
+        return loadedAd as Widget;
+      }
     } else {
       restore(AdvertisementViewType.widget);
     }
@@ -134,12 +145,12 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         if (_listAdLoadedView[AdvertisementViewType.openApp] != null && _listAdLoadedView[AdvertisementViewType.openApp]!.isNotEmpty) {
           var loadedAd = _listAdLoadedView[AdvertisementViewType.openApp]!.values.first;
           var adView = _listAdLoadedView[AdvertisementViewType.openApp]!.keys.first;
-          _advertisements[adView.data!.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data!.type);
+          _advertisements[adView.data.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data.type);
           _listAdLoadedView.remove(adView);
         } else if (_listAdLoadedView[AdvertisementViewType.handle] != null && _listAdLoadedView[AdvertisementViewType.handle]!.isNotEmpty) {
           var loadedAd = _listAdLoadedView[AdvertisementViewType.handle]!.values.first;
           var adView = _listAdLoadedView[AdvertisementViewType.handle]!.keys.first;
-          _advertisements[adView.data!.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data!.type);
+          _advertisements[adView.data.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data.type);
           _listAdLoadedView.remove(adView);
         }
         break;

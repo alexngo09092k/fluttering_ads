@@ -29,7 +29,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     return LayoutBuilder(builder: (context, boxConstraints) {
       final double width = adItem.width ?? boxConstraints.maxWidth;
       final double height = adItem.height ?? boxConstraints.maxHeight;
-      final dontUseSize = adItem.height == null || adItem.width == null || boxConstraints.maxHeight == double.infinity || boxConstraints.maxWidth == double.infinity;
+      final dontUseSize = width == double.infinity || height == double.infinity;
       switch (adItem.type) {
         case AdvertisementType.native:
           return Container(

@@ -26,36 +26,47 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     Function(dynamic)? onLoadedAd,
     Function(dynamic error)? onAdFailedToLoad,
   }) {
-    switch (adItem.type) {
-      case AdvertisementType.native:
-        var nativeAd = _loadNativeAd(
-            adItem,
-            null,
-            onLoadedAd,
-            onAdFailedToLoad,
-            adItem.height == null
-                ? NativeAdType.full
-                : adItem.height! < 100
-                    ? NativeAdType.small
-                    : NativeAdType.banner);
-        return Container(
-          width: adItem.width,
-          height: adItem.height,
-          alignment: Alignment.center,
-          child: nativeAd,
-        );
-      case AdvertisementType.roll:
-        return FutureBuilder<InstreamAdView?>(
-            future: _loadInstreamAdView(adItem, null, onLoadedAd, onAdFailedToLoad),
+    return LayoutBuilder(builder: (context, boxConstraints) {
+      final double width = adItem.width ?? boxConstraints.maxWidth;
+      final double height = adItem.height ?? boxConstraints.maxHeight;
+      final dontUseSize = adItem.height == null || adItem.width == null || boxConstraints.maxHeight == double.infinity || boxConstraints.maxWidth == double.infinity;
+      switch (adItem.type) {
+        case AdvertisementType.native:
+          return Container(
+            width: width,
+            height: height,
+            alignment: Alignment.center,
+            child: _loadNativeAd(
+              adItem,
+              null,
+              onLoadedAd,
+              onAdFailedToLoad,
+              dontUseSize
+                  ? NativeAdType.full
+                  : height < 100
+                      ? NativeAdType.small
+                      : NativeAdType.banner,
+            ),
+          );
+        case AdvertisementType.roll:
+          return FutureBuilder<InstreamAdView?>(
+            future: _loadInstreamAdView(
+              adItem,
+              null,
+              onLoadedAd,
+              onAdFailedToLoad,
+            ),
             builder: (_, snapshot) => Container(
-                  width: adItem.width,
-                  height: adItem.height,
-                  alignment: Alignment.center,
-                  child: snapshot.data ?? const SizedBox(),
-                ));
-      default:
-        return const SizedBox();
-    }
+              width: width,
+              height: height,
+              alignment: Alignment.center,
+              child: snapshot.data ?? const SizedBox(),
+            ),
+          );
+        default:
+          return const SizedBox();
+      }
+    });
   }
 
   @override

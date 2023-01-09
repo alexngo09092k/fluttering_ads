@@ -6,10 +6,11 @@ extension BannerEx on GoogleAdvertisement {
     Function(BannerAd)? onAd,
     Function(Ad)? onLoadedAd,
     Function(LoadAdError error)? onAdFailedToLoad,
+    AdSize? adSize,
   ]) {
     _ads[adItem.id] = BannerAd(
       adUnitId: adItem.id,
-      size: AdSize.banner,
+      size: adSize ?? AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (Ad ad) {
           _ads[adItem.id] = ad;

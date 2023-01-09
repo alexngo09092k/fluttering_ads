@@ -26,34 +26,49 @@ class GoogleAdvertisement extends BaseAdvertisement {
     Function(dynamic)? onLoadedAd,
     Function(dynamic error)? onAdFailedToLoad,
   }) {
-    switch (adItem.type) {
-      case AdvertisementType.banner:
-        var bannerAd = _loadBannerAd(adItem, null, onLoadedAd, onAdFailedToLoad);
-        return Container(
-          alignment: Alignment.center,
-          width: adItem.width ?? bannerAd.size.width.toDouble(),
-          height: adItem.height ?? bannerAd.size.height.toDouble(),
-          child: AdWidget(ad: bannerAd),
-        );
-      case AdvertisementType.fluid:
-        var fluidAd = _loadFluidAd(adItem, null, onLoadedAd, onAdFailedToLoad);
-        return Container(
-          width: adItem.width,
-          height: adItem.height,
-          alignment: Alignment.center,
-          child: AdWidget(ad: fluidAd),
-        );
-      case AdvertisementType.native:
-        var nativeAd = _loadNativeAd(adItem, null, onLoadedAd, onAdFailedToLoad);
-        return Container(
-          width: adItem.width,
-          height: adItem.height,
-          alignment: Alignment.center,
-          child: AdWidget(ad: nativeAd),
-        );
-      default:
-        return const SizedBox();
-    }
+    return LayoutBuilder(builder: (context, boxConstraints) {
+      final double width = adItem.width ?? boxConstraints.maxWidth;
+      final double height = adItem.height ?? boxConstraints.maxHeight;
+      final dontUseSize = adItem.height == null || adItem.width == null || boxConstraints.maxHeight == double.infinity || boxConstraints.maxWidth == double.infinity;
+      switch (adItem.type) {
+        case AdvertisementType.banner:
+          return Container(
+            alignment: Alignment.center,
+            width: width,
+            height: height,
+            child: AdWidget(
+              ad: _loadBannerAd(
+                adItem,
+                null,
+                onLoadedAd,
+                onAdFailedToLoad,
+                dontUseSize ? AdSize.fluid :  AdSize(width: width.toInt(), height: height.toInt()),
+              ),
+            ),
+          );
+
+        case AdvertisementType.fluid:
+          return Container(
+            width: width,
+            height: height,
+            alignment: Alignment.center,
+            child: AdWidget(
+              ad: _loadFluidAd(adItem, null, onLoadedAd, onAdFailedToLoad),
+            ),
+          );
+        case AdvertisementType.native:
+          return Container(
+            width: width,
+            height: height,
+            alignment: Alignment.center,
+            child: AdWidget(
+              ad: _loadNativeAd(adItem, null, onLoadedAd, onAdFailedToLoad),
+            ),
+          );
+        default:
+          return const SizedBox();
+      }
+    });
   }
 
   @override
@@ -62,10 +77,11 @@ class GoogleAdvertisement extends BaseAdvertisement {
     Function(dynamic)? onAd,
     Function(Ad)? onLoadedAd,
     Function(LoadAdError error)? onAdFailedToLoad,
+    AdSize? adSize,
   }) {
     switch (adItem.type) {
       case AdvertisementType.banner:
-        _loadBannerAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
+        _loadBannerAd(adItem, onAd, onLoadedAd, onAdFailedToLoad, adSize);
         break;
       case AdvertisementType.fluid:
         _loadFluidAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);

@@ -78,8 +78,8 @@ class AdvertisementItem {
       showOnScreens: List<String>.from(map['showOnScreens'] ?? []),
       hideOnScreens: List<String>.from(map['hideOnScreens'] ?? []),
       waitingTimeToDisplay: int.tryParse(map['waitingTimeToDisplay']),
-      width: double.tryParse(map['width']),
-      height: double.tryParse(map['height']),
+      width: map['width'] is String ? double.tryParse(map['width']) : null,
+      height: map['width'] is String ? double.tryParse(map['height']) : null,
     );
   }
 

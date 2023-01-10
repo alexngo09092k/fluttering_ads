@@ -119,7 +119,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
           final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
           Future.delayed(adItem.waitingTimeToDisplay, () {
             _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+            // _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
           });
         }
       } else {
@@ -129,7 +129,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
           final adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
           Future.delayed(adItem.waitingTimeToDisplay, () {
             _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+            // _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
           });
         }
       }
@@ -150,7 +150,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         final adItem = ad;
         if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
           final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem];
-          _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+          // _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
           return adLoaded;
         }
       }
@@ -159,7 +159,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
       final adItem = _adLoadedList[AdvertisementViewType.widget]!.keys.first;
       if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
         final adLoaded = _adLoadedList[AdvertisementViewType.widget]!.values.first;
-        _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+        // _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
         return adLoaded;
       }
     }
@@ -186,7 +186,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
           if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
             Future.delayed(adItem.waitingTimeToDisplay, () {
               _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+              // _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
             });
           }
         } else if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
@@ -195,7 +195,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
           if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
             Future.delayed(adItem.waitingTimeToDisplay, () {
               _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+              // _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
             });
           }
         }

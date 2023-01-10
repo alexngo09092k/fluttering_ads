@@ -13,7 +13,7 @@ class AdvertisementItem {
   final String iosId;
   final List<String> showOnScreens;
   final List<String> hideOnScreens;
-  final int waitingTimeToDisplay;
+  final int? waitingTimeToDisplay;
   final double? width;
   final double? height;
 
@@ -24,7 +24,7 @@ class AdvertisementItem {
     this.iosId = '',
     this.showOnScreens = const <String>[],
     this.hideOnScreens = const <String>[],
-    this.waitingTimeToDisplay = 1,
+    this.waitingTimeToDisplay,
     this.width,
     this.height,
   });
@@ -75,12 +75,32 @@ class AdvertisementItem {
       provider: AdvertisementProvider.values.firstWhere((element) => describeEnum(element) == map['provider']),
       androidId: map['androidId'] ?? '',
       iosId: map['iosId'] ?? '',
-      showOnScreens: List<String>.unmodifiable(map['showOnScreens'] ?? <String>[]),
-      hideOnScreens: List<String>.unmodifiable(map['hideOnScreens'] ?? <String>[]),
-      waitingTimeToDisplay: (map['waitingTimeToDisplay'] ?? 0).toInt(),
-      width: (map['width'] ?? 0.0) as double,
-      height: (map['height'] ?? 0.0) as double,
+      showOnScreens: List<String>.from(map['showOnScreens']),
+      hideOnScreens: List<String>.from(map['hideOnScreens']),
+      waitingTimeToDisplay: int.tryParse(map['waitingTimeToDisplay']),
+      width: double.tryParse(map['width']),
+      height: double.tryParse(map['height']),
     );
+  }
+
+  AdvertisementViewType get viewType {
+    switch (type) {
+      case AdvertisementType.banner:
+        if (provider == AdvertisementProvider.huawei) return AdvertisementViewType.handle;
+        return AdvertisementViewType.widget;
+      case AdvertisementType.native:
+      case AdvertisementType.fluid:
+      case AdvertisementType.roll:
+        return AdvertisementViewType.widget;
+      case AdvertisementType.interstitial:
+      case AdvertisementType.reward:
+      case AdvertisementType.splash:
+        return AdvertisementViewType.handle;
+      case AdvertisementType.openApp:
+        return AdvertisementViewType.openApp;
+      default:
+        return AdvertisementViewType.none;
+    }
   }
 
   String toJson() => json.encode(toMap());

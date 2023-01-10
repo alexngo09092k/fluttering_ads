@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 enum AdvertisementType {
   openApp,
   fluid,
@@ -11,6 +9,9 @@ enum AdvertisementType {
   roll,
 }
 
-extension AdvertisementTypeExtension on AdvertisementType {
-  String get content => describeEnum(this);
+enum AdvertisementViewType {
+  widget,
+  handle,
+  openApp,
+  none,
 }

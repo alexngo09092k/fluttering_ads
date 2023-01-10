@@ -29,10 +29,11 @@ class GoogleAdvertisement extends BaseAdvertisement {
     return LayoutBuilder(builder: (context, boxConstraints) {
       final double width = adItem.width ?? boxConstraints.maxWidth;
       final double height = adItem.height ?? boxConstraints.maxHeight;
-      final dontUseSize = width == double.infinity || height == double.infinity || width == 0 || height == 0;
-      Debug.log("CREATE AD WIDGET SIZE $width, $height AND USED: ${!dontUseSize}");
+      final isInfinity = width == double.infinity || height == double.infinity;
+      final isZero = width == 0 || height == 0;
+      Debug.log("CREATE AD WIDGET SIZE $width, $height");
 
-      if (dontUseSize) return const SizedBox();
+      if (isZero) return const SizedBox();
 
       switch (adItem.type) {
         case AdvertisementType.banner:
@@ -46,7 +47,7 @@ class GoogleAdvertisement extends BaseAdvertisement {
                 null,
                 onLoadedAd,
                 onAdFailedToLoad,
-                AdSize(width: width.toInt(), height: height.toInt()),
+                isInfinity ? AdSize.fluid : AdSize(width: width.toInt(), height: height.toInt()),
               ),
             ),
           );

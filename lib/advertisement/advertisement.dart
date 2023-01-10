@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttering/fluttering.dart';
 import 'package:fluttering_ads/advertisement/custom_ads/custom_advertisement.dart';
@@ -11,9 +13,9 @@ abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate {
 
   void restore();
 
-  Widget? getAdWidget([Size? size]);
+  void handleAd([AdvertisementItem? ad]);
 
-  void showAd();
+  Widget? widgetAd([AdvertisementItem? ad]);
 }
 
 class AwesomeAdvertisement extends IAwesomeAdvertisement {
@@ -28,9 +30,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   @override
   AdvertisementConfig get config => _config;
 
-  final List<AdvertisementView> _listAdView = [];
-
-  final Map<AdvertisementViewType, Map<AdvertisementView, dynamic>> _listAdLoadedView = {};
+  final Map<AdvertisementViewType, Map<AdvertisementItem, dynamic>> _adLoadedList = {};
 
   final _advertisements = {
     AdvertisementProvider.google: GoogleAdvertisement(),
@@ -41,53 +41,61 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   @override
   void initial(AdvertisementConfig config) {
     _config = config;
-    if (config.enable) {
-      bool googleAds = false;
-      for (final ad in config.ads) {
-        if (!googleAds && ad.provider == AdvertisementProvider.google) googleAds = true;
-        var adView = AdvertisementView(data: ad);
-        _listAdView.add(adView);
+
+    /// CHECKING ADS IS ENABLED
+    if (!config.enable) return;
+
+    /// CHECKING HAVE GOOGLE ADS
+    bool googleAds = false;
+    for (final ad in config.ads) {
+      if (!googleAds && ad.provider == AdvertisementProvider.google) {
+        googleAds = true;
+        break;
       }
-      if (googleAds) {
-        MobileAds.instance.initialize().then((InitializationStatus status) {
-          Debug.log('Google Mobile Ads Initialization Done: ${status.adapterStatuses}');
-          MobileAds.instance.updateRequestConfiguration(RequestConfiguration(
-            tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
-          ));
-        });
-      }
-      restore();
     }
+
+    /// GOOGLE ADS MOBILE INITITAL
+    if (googleAds) {
+      MobileAds.instance.initialize().then((InitializationStatus status) {
+        Debug.log('Google Mobile Ads Initialization Done: ${status.adapterStatuses}');
+        MobileAds.instance.updateRequestConfiguration(RequestConfiguration(
+          tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
+        ));
+      });
+    }
+    restore();
   }
 
   @override
-  void restore([AdvertisementViewType? type]) {
+  void restore([AdvertisementViewType? viewType]) {
+    /// CHECKING ADS IS ENABLED
     if (!config.enable) return;
-    for (var adView in _listAdView) {
-      if (type != null && adView.type != type) return;
-      if (_advertisements.containsKey(adView.data.provider)) {
-        if (_advertisements[adView.data.provider]!.isSupported) {
-          if (!_listAdLoadedView.containsKey(adView.type)) {
-            _listAdLoadedView[adView.type] = {};
-          } else if (_listAdLoadedView[adView.type]!.containsKey(adView.data.id)) {
-            /// Loaded ads
+
+    /// LOAD ALL ADS
+    for (var ad in config.ads) {
+      if (viewType != null && ad.viewType != viewType) return;
+      if (_advertisements.containsKey(ad.provider)) {
+        if (_advertisements[ad.provider]!.isSupported) {
+          if (!_adLoadedList.containsKey(ad.viewType)) {
+            _adLoadedList[ad.viewType] = {};
+          } else if (_adLoadedList[ad.viewType]!.containsKey(ad)) {
+            /// LOADED AD YET
             return;
           }
 
-          /// Not load ads yet
-          if (adView.type == AdvertisementViewType.widget) {
-            final widget = _advertisements[adView.data.provider]!.createAdWidget(adItem: adView.data);
+          /// AD IS NOT LOADED
+          if (ad.viewType == AdvertisementViewType.widget) {
+            final widget = _advertisements[ad.provider]!.createAdWidget(adItem: ad);
             if (widget != null) {
-              /// Added widget ads
-              _listAdLoadedView[adView.type]!.addEntries([MapEntry(adView, widget)]);
+              /// WIDGET ADS (BANNER, FLUID, ROLL)
+              _adLoadedList[ad.viewType]!.addEntries([MapEntry(ad, widget)]);
             }
           } else {
-            _advertisements[adView.data.provider]!.loadAd(
-              adItem: adView.data,
+            /// OPEN APP ADS AND HANDLER ADS
+            _advertisements[ad.provider]!.loadAd(
+              adItem: ad,
               onLoadedAd: (loadedAd) {
-                /// Added handler ads
-                /// Added open app ads
-                _listAdLoadedView[adView.type]!.addEntries([MapEntry(adView, loadedAd)]);
+                _adLoadedList[ad.viewType]!.addEntries([MapEntry(ad, loadedAd)]);
               },
             );
           }
@@ -97,61 +105,77 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   }
 
   @override
-  void showAd() {
+  void handleAd([AdvertisementItem? ad]) {
+    /// CHECKING ADS IS ENABLED
     if (!config.enable) return;
-    if (_listAdLoadedView[AdvertisementViewType.handle] != null && _listAdLoadedView[AdvertisementViewType.handle]!.isNotEmpty) {
-      var loadedAd = _listAdLoadedView[AdvertisementViewType.handle]!.values.first;
-      var adView = _listAdLoadedView[AdvertisementViewType.handle]!.keys.first;
-      _advertisements[adView.data.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data.type);
-      _listAdLoadedView.remove(adView);
+
+    if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
+      if (ad != null && _adLoadedList[AdvertisementViewType.handle]!.containsKey(ad)) {
+        /// LOAD FROM LOADED ADS
+        final adItem = ad;
+        final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
+        _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+        _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+      } else {
+        /// RANDOM LOAD FROM LOADED ADS
+        final adItem = _adLoadedList[AdvertisementViewType.handle]!.keys.first;
+        final adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
+        _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+        _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+      }
     } else {
+      /// RESTORE ADS
       restore(AdvertisementViewType.handle);
     }
   }
 
   @override
-  Widget? getAdWidget([Size? size]) {
+  Widget? widgetAd([AdvertisementItem? ad]) {
+    /// CHECKING ADS IS ENABLED
     if (!config.enable) return null;
 
-    if (_listAdLoadedView[AdvertisementViewType.widget] != null && _listAdLoadedView[AdvertisementViewType.widget]!.isNotEmpty) {
-      for (var _ in _listAdLoadedView[AdvertisementViewType.widget]!.keys) {
-        if (size != null && _.data.width == size.height && _.data.height == size.height) {
-          var loadedAd = _listAdLoadedView[AdvertisementViewType.widget]![_];
-          _listAdLoadedView.remove(_);
-          return loadedAd;
-        }
+    if (_adLoadedList[AdvertisementViewType.widget] != null && _adLoadedList[AdvertisementViewType.widget]!.isNotEmpty) {
+      if (ad != null && _adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
+        /// LOAD FROM LOADED ADS
+        final adItem = ad;
+        final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem];
+        _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+        return adLoaded;
       }
-      if (size == null) {
-        var loadedAd = _listAdLoadedView[AdvertisementViewType.widget]!.values.first;
-        var adView = _listAdLoadedView[AdvertisementViewType.widget]!.keys.first;
 
-        _listAdLoadedView.remove(adView);
-        return loadedAd as Widget;
-      }
-    } else {
-      restore(AdvertisementViewType.widget);
+      /// RANDOM LOAD FROM LOADED ADS
+      final adItem = _adLoadedList[AdvertisementViewType.widget]!.keys.first;
+      final adLoaded = _adLoadedList[AdvertisementViewType.widget]!.values.first;
+      _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+      return adLoaded;
     }
+
+    /// RESTORE ADS
+    restore(AdvertisementViewType.widget);
     return null;
   }
 
   @override
-  Future<bool> changedAppLifecycleState(AppLifecycleState state) {
+  Future<bool> changedAppLifecycleState(AppLifecycleState state) async {
+    /// CHECKING ADS IS ENABLED
     if (!config.enable) return super.changedAppLifecycleState(state);
+
+    /// LOAD FROM LOADED ADS
     switch (state) {
       case AppLifecycleState.inactive:
         restore();
         break;
       case AppLifecycleState.resumed:
-        if (_listAdLoadedView[AdvertisementViewType.openApp] != null && _listAdLoadedView[AdvertisementViewType.openApp]!.isNotEmpty) {
-          var loadedAd = _listAdLoadedView[AdvertisementViewType.openApp]!.values.first;
-          var adView = _listAdLoadedView[AdvertisementViewType.openApp]!.keys.first;
-          _advertisements[adView.data.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data.type);
-          _listAdLoadedView.remove(adView);
-        } else if (_listAdLoadedView[AdvertisementViewType.handle] != null && _listAdLoadedView[AdvertisementViewType.handle]!.isNotEmpty) {
-          var loadedAd = _listAdLoadedView[AdvertisementViewType.handle]!.values.first;
-          var adView = _listAdLoadedView[AdvertisementViewType.handle]!.keys.first;
-          _advertisements[adView.data.provider]!.showLoadedAd(loadedAd: loadedAd, type: adView.data.type);
-          _listAdLoadedView.remove(adView);
+        if (_adLoadedList[AdvertisementViewType.openApp] != null && _adLoadedList[AdvertisementViewType.openApp]!.isNotEmpty) {
+          var adLoaded = _adLoadedList[AdvertisementViewType.openApp]!.values.first;
+          var adItem = _adLoadedList[AdvertisementViewType.openApp]!.keys.first;
+          _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+          _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+        } else if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
+          var adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
+          var adItem = _adLoadedList[AdvertisementViewType.handle]!.keys.first;
+          _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+          _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
         }
         break;
       default:

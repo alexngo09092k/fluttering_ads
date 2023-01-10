@@ -13,7 +13,7 @@ class AdvertisementItem {
   final String iosId;
   final List<String> showOnScreens;
   final List<String> hideOnScreens;
-  final int? waitingTimeToDisplay;
+  final Duration waitingTimeToDisplay;
   final double? width;
   final double? height;
 
@@ -24,7 +24,7 @@ class AdvertisementItem {
     this.iosId = '',
     this.showOnScreens = const <String>[],
     this.hideOnScreens = const <String>[],
-    this.waitingTimeToDisplay,
+    this.waitingTimeToDisplay = Duration.zero,
     this.width,
     this.height,
   });
@@ -38,7 +38,7 @@ class AdvertisementItem {
     String? iosId,
     List<String>? showOnScreens,
     List<String>? hideOnScreens,
-    int? waitingTimeToDisplay,
+    Duration? waitingTimeToDisplay,
     double? width,
     double? height,
   }) {
@@ -63,7 +63,7 @@ class AdvertisementItem {
       'iosId': iosId,
       'showOnScreens': showOnScreens,
       'hideOnScreens': hideOnScreens,
-      'waitingTimeToDisplay': waitingTimeToDisplay,
+      'waitingTimeToDisplay': waitingTimeToDisplay.inMilliseconds,
       'width': width,
       'height': height,
     };
@@ -77,7 +77,7 @@ class AdvertisementItem {
       iosId: map['iosId'] ?? '',
       showOnScreens: List<String>.from(map['showOnScreens'] ?? []),
       hideOnScreens: List<String>.from(map['hideOnScreens'] ?? []),
-      waitingTimeToDisplay: map['waitingTimeToDisplay'] is String ? int.tryParse(map['waitingTimeToDisplay']) : null,
+      waitingTimeToDisplay: Duration(milliseconds: int.parse(map['waitingTimeToDisplay'] ?? '0')),
       width: map['width'] is String ? double.tryParse(map['width']) : null,
       height: map['width'] is String ? double.tryParse(map['height']) : null,
     );

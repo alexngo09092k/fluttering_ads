@@ -6,7 +6,7 @@ import 'package:fluttering_ads/advertisement/custom_ads/custom_advertisement.dar
 import 'package:fluttering_ads/advertisement/index.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate {
+abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate, ProviderObserver {
   AdvertisementConfig get config;
 
   void initial(AdvertisementConfig config);
@@ -37,6 +37,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     AdvertisementProvider.huawei: HuaweiAdvertisement(),
     AdvertisementProvider.custom: CustomAdvertisement(),
   };
+
+  String? _screenName;
 
   @override
   void initial(AdvertisementConfig config) {
@@ -113,15 +115,23 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
       if (ad != null && _adLoadedList[AdvertisementViewType.handle]!.containsKey(ad)) {
         /// LOAD FROM LOADED ADS
         final adItem = ad;
-        final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
-        _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-        _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+        if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+          final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
+          Future.delayed(adItem.waitingTimeToDisplay, () {
+            _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+          });
+        }
       } else {
         /// RANDOM LOAD FROM LOADED ADS
         final adItem = _adLoadedList[AdvertisementViewType.handle]!.keys.first;
-        final adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
-        _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-        _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+        if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+          final adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
+          Future.delayed(adItem.waitingTimeToDisplay, () {
+            _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+          });
+        }
       }
     } else {
       /// RESTORE ADS
@@ -138,16 +148,20 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
       if (ad != null && _adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
         /// LOAD FROM LOADED ADS
         final adItem = ad;
-        final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem];
-        _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
-        return adLoaded;
+        if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+          final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem];
+          _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+          return adLoaded;
+        }
       }
 
       /// RANDOM LOAD FROM LOADED ADS
       final adItem = _adLoadedList[AdvertisementViewType.widget]!.keys.first;
-      final adLoaded = _adLoadedList[AdvertisementViewType.widget]!.values.first;
-      _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
-      return adLoaded;
+      if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+        final adLoaded = _adLoadedList[AdvertisementViewType.widget]!.values.first;
+        _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+        return adLoaded;
+      }
     }
 
     /// RESTORE ADS
@@ -169,17 +183,54 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         if (_adLoadedList[AdvertisementViewType.openApp] != null && _adLoadedList[AdvertisementViewType.openApp]!.isNotEmpty) {
           var adLoaded = _adLoadedList[AdvertisementViewType.openApp]!.values.first;
           var adItem = _adLoadedList[AdvertisementViewType.openApp]!.keys.first;
-          _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-          _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+          if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+            Future.delayed(adItem.waitingTimeToDisplay, () {
+              _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+            });
+          }
         } else if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
           var adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
           var adItem = _adLoadedList[AdvertisementViewType.handle]!.keys.first;
-          _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-          _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+          if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+            Future.delayed(adItem.waitingTimeToDisplay, () {
+              _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+            });
+          }
         }
         break;
       default:
     }
     return super.changedAppLifecycleState(state);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    if (previousRoute is PageRoute && route is PageRoute) {
+      _sendScreenView(previousRoute);
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    if (route is PageRoute) {
+      _sendScreenView(route);
+    }
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    if (newRoute is PageRoute) {
+      _sendScreenView(newRoute);
+    }
+  }
+
+  void _sendScreenView(PageRoute<dynamic> route) {
+    _screenName = route.settings.name;
+    Debug.log("=> SCREEN $_screenName <=");
   }
 }

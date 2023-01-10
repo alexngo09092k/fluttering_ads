@@ -77,9 +77,9 @@ class AdvertisementItem {
       iosId: map['iosId'] ?? '',
       showOnScreens: List<String>.from(map['showOnScreens'] ?? []),
       hideOnScreens: List<String>.from(map['hideOnScreens'] ?? []),
-      waitingTimeToDisplay: Duration(milliseconds: int.parse(map['waitingTimeToDisplay'] ?? '0')),
-      width: map['width'] is String ? double.tryParse(map['width']) : null,
-      height: map['width'] is String ? double.tryParse(map['height']) : null,
+      waitingTimeToDisplay: Duration(milliseconds: int.parse('${map['waitingTimeToDisplay'] ?? 0}')),
+      width: map['width'] is String ? double.tryParse('${map['width']}') : null,
+      height: map['width'] is String ? double.tryParse('${map['height']}') : null,
     );
   }
 

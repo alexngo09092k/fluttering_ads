@@ -222,7 +222,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
             var adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
             Future.delayed(adItem.waitingTimeToDisplay, () {
               _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+              _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
             });
           }
         }

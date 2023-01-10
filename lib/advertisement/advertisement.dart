@@ -8,7 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 //! READ https://developers.google.com/admob/flutter/app-open
 
-abstract class IAwesomeAdvertisement extends Provider with ProviderObserver {
+abstract class IAwesomeAdvertisement extends Provider with ProviderObserver, ProviderDelegate {
   AdvertisementConfig get config;
 
   void initial(AdvertisementConfig config);
@@ -26,10 +26,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
   factory AwesomeAdvertisement() => _instance as AwesomeAdvertisement;
 
-  AwesomeAdvertisement._internal() {
-    AppStateEventNotifier.startListening();
-    AppStateEventNotifier.appStateStream.forEach(_changedAppLifecycleState);
-  }
+  AwesomeAdvertisement._internal();
 
   AdvertisementConfig _config = const AdvertisementConfig();
   @override
@@ -44,6 +41,14 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   };
 
   String? _screenName;
+
+  @override
+  Future<bool> willOpenApp() {
+    /// LISTEN APP STATE
+    AppStateEventNotifier.startListening();
+    AppStateEventNotifier.appStateStream.forEach(_changedAppLifecycleState);
+    return super.willOpenApp();
+  }
 
   @override
   void initial(AdvertisementConfig config) {

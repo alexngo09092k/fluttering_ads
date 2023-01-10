@@ -81,9 +81,11 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         if (_advertisements[ad.provider]!.isSupported) {
           if (!_adLoadedList.containsKey(ad.viewType)) {
             _adLoadedList[ad.viewType] = {};
-          } else if (_adLoadedList[ad.viewType]!.containsKey(ad)) {
+          }
+
+          if (_adLoadedList[ad.viewType]!.containsKey(ad)) {
             /// LOADED AD YET
-            return;
+            break;
           }
 
           /// AD IS NOT LOADED

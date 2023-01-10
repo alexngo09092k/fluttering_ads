@@ -168,6 +168,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         if (_adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
           /// LOAD FROM LOADED ADS
           final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
+          _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
           return adLoaded;
         }
 

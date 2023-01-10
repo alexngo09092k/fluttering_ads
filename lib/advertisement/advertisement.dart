@@ -6,7 +6,9 @@ import 'package:fluttering_ads/advertisement/custom_ads/custom_advertisement.dar
 import 'package:fluttering_ads/advertisement/index.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate, ProviderObserver {
+//! READ https://developers.google.com/admob/flutter/app-open
+
+abstract class IAwesomeAdvertisement extends Provider with ProviderObserver {
   AdvertisementConfig get config;
 
   void initial(AdvertisementConfig config);
@@ -24,7 +26,10 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
   factory AwesomeAdvertisement() => _instance as AwesomeAdvertisement;
 
-  AwesomeAdvertisement._internal();
+  AwesomeAdvertisement._internal() {
+    AppStateEventNotifier.startListening();
+    AppStateEventNotifier.appStateStream.forEach(_changedAppLifecycleState);
+  }
 
   AdvertisementConfig _config = const AdvertisementConfig();
   @override
@@ -197,17 +202,16 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     return null;
   }
 
-  @override
-  Future<bool> changedAppLifecycleState(AppLifecycleState state) async {
+  void _changedAppLifecycleState(AppState state) async {
     /// CHECKING ADS IS ENABLED
-    if (!config.enable) return super.changedAppLifecycleState(state);
+    if (!config.enable) return;
 
     /// LOAD FROM LOADED ADS
     switch (state) {
-      case AppLifecycleState.inactive:
+      case AppState.background:
         restore();
         break;
-      case AppLifecycleState.resumed:
+      case AppState.foreground:
         if (_adLoadedList[AdvertisementViewType.openApp] != null && _adLoadedList[AdvertisementViewType.openApp]!.isNotEmpty) {
           var adItems = _adLoadedList[AdvertisementViewType.openApp]!.keys.where((element) => element.canShow(_screenName));
           var adItem = adItems.isNotEmpty ? adItems.first : null;
@@ -232,7 +236,6 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         break;
       default:
     }
-    return super.changedAppLifecycleState(state);
   }
 
   @override
@@ -262,5 +265,11 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   void _sendScreenView(PageRoute<dynamic> route) {
     _screenName = route.settings.name;
     Debug.log("=> SCREEN $_screenName <=");
+  }
+
+  @override
+  void dispose() {
+    AppStateEventNotifier.stopListening();
+    super.dispose();
   }
 }

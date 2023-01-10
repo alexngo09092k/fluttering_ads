@@ -13,9 +13,9 @@ abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate, Pro
 
   void restore();
 
-  void handleAd([AdvertisementItem? ad]);
+  void handleAd({AdvertisementItem? ad});
 
-  Widget? widgetAd([AdvertisementItem? ad]);
+  Widget? widgetAd({AdvertisementItem? ad, Function(dynamic)? onLoadedAd, Function(dynamic)? onAdFailedToLoad});
 }
 
 class AwesomeAdvertisement extends IAwesomeAdvertisement {
@@ -76,6 +76,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// LOAD ALL ADS
     for (var ad in config.ads) {
       if (viewType != null && ad.viewType != viewType) return;
+
       if (_advertisements.containsKey(ad.provider)) {
         if (_advertisements[ad.provider]!.isSupported) {
           if (!_adLoadedList.containsKey(ad.viewType)) {
@@ -87,11 +88,18 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
           /// AD IS NOT LOADED
           if (ad.viewType == AdvertisementViewType.widget) {
-            final widget = _advertisements[ad.provider]!.createAdWidget(adItem: ad);
-            if (widget != null) {
-              /// WIDGET ADS (BANNER, FLUID, ROLL)
-              _adLoadedList[ad.viewType]!.addEntries([MapEntry(ad, widget)]);
-            }
+            widgetBuilder(
+              onLoadedAd,
+              onAdFailedToLoad,
+            ) =>
+                _advertisements[ad.provider]!.createAdWidget(
+                  adItem: ad,
+                  onLoadedAd: onLoadedAd,
+                  onAdFailedToLoad: onAdFailedToLoad,
+                );
+
+            /// WIDGET ADS (BANNER, FLUID, ROLL)
+            _adLoadedList[ad.viewType]!.addEntries([MapEntry(ad, widgetBuilder)]);
           } else {
             /// OPEN APP ADS AND HANDLER ADS
             _advertisements[ad.provider]!.loadAd(
@@ -107,59 +115,76 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   }
 
   @override
-  void handleAd([AdvertisementItem? ad]) {
+  void handleAd({AdvertisementItem? ad}) async {
     /// CHECKING ADS IS ENABLED
     if (!config.enable) return;
 
     if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
-      if (ad != null && _adLoadedList[AdvertisementViewType.handle]!.containsKey(ad)) {
-        /// LOAD FROM LOADED ADS
+      if (ad != null) {
         final adItem = ad;
-        if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+        if (!adItem.canShow(_screenName)) return;
+
+        if (_adLoadedList[AdvertisementViewType.handle]!.containsKey(ad)) {
+          /// LOAD FROM LOADED ADS
           final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
           Future.delayed(adItem.waitingTimeToDisplay, () {
             _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-            // _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+          });
+        } else {
+          /// CREATE NEW ADS
+          Future.delayed(adItem.waitingTimeToDisplay, () {
+            _advertisements[adItem.provider]!.showAd(adItem: adItem);
           });
         }
       } else {
         /// RANDOM LOAD FROM LOADED ADS
-        final adItem = _adLoadedList[AdvertisementViewType.handle]!.keys.first;
-        if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+        final adItems = _adLoadedList[AdvertisementViewType.handle]!.keys.where((element) => element.canShow(_screenName));
+        final adItem = adItems.isNotEmpty ? adItems.first : null;
+        if (adItem != null) {
           final adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
           Future.delayed(adItem.waitingTimeToDisplay, () {
             _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-            // _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
           });
         }
       }
-    } else {
-      /// RESTORE ADS
-      restore(AdvertisementViewType.handle);
     }
+
+    /// RESTORE ADS
+    restore(AdvertisementViewType.handle);
   }
 
   @override
-  Widget? widgetAd([AdvertisementItem? ad]) {
+  Widget? widgetAd({AdvertisementItem? ad, Function(dynamic)? onLoadedAd, Function(dynamic)? onAdFailedToLoad}) {
     /// CHECKING ADS IS ENABLED
     if (!config.enable) return null;
 
     if (_adLoadedList[AdvertisementViewType.widget] != null && _adLoadedList[AdvertisementViewType.widget]!.isNotEmpty) {
-      if (ad != null && _adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
-        /// LOAD FROM LOADED ADS
+      if (ad != null) {
         final adItem = ad;
-        if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
-          final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem];
-          // _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+        if (!adItem.canShow(_screenName)) return null;
+
+        if (_adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
+          /// LOAD FROM LOADED ADS
+          final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
           return adLoaded;
         }
+
+        /// CREATE NEW ADS
+        final adLoaded = _advertisements[adItem.provider]!.createAdWidget(
+          adItem: adItem,
+          onLoadedAd: onLoadedAd,
+          onAdFailedToLoad: onAdFailedToLoad,
+        );
+        return adLoaded;
       }
 
       /// RANDOM LOAD FROM LOADED ADS
-      final adItem = _adLoadedList[AdvertisementViewType.widget]!.keys.first;
-      if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
-        final adLoaded = _adLoadedList[AdvertisementViewType.widget]!.values.first;
-        // _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
+      final adItems = _adLoadedList[AdvertisementViewType.widget]!.keys.where((element) => element.canShow(_screenName));
+      final adItem = adItems.isNotEmpty ? adItems.first : null;
+      if (adItem != null) {
+        final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
         return adLoaded;
       }
     }
@@ -181,21 +206,23 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         break;
       case AppLifecycleState.resumed:
         if (_adLoadedList[AdvertisementViewType.openApp] != null && _adLoadedList[AdvertisementViewType.openApp]!.isNotEmpty) {
-          var adLoaded = _adLoadedList[AdvertisementViewType.openApp]!.values.first;
-          var adItem = _adLoadedList[AdvertisementViewType.openApp]!.keys.first;
-          if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+          var adItems = _adLoadedList[AdvertisementViewType.openApp]!.keys.where((element) => element.canShow(_screenName));
+          var adItem = adItems.isNotEmpty ? adItems.first : null;
+          if (adItem != null) {
+            var adLoaded = _adLoadedList[AdvertisementViewType.openApp]![adItem];
             Future.delayed(adItem.waitingTimeToDisplay, () {
               _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-              // _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
             });
           }
         } else if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
-          var adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
-          var adItem = _adLoadedList[AdvertisementViewType.handle]!.keys.first;
-          if ((adItem.showOnScreens.contains(_screenName) || adItem.showOnScreens.isEmpty) && !adItem.hideOnScreens.contains(_screenName)) {
+          var adItems = _adLoadedList[AdvertisementViewType.handle]!.keys.where((element) => element.canShow(_screenName));
+          var adItem = adItems.isNotEmpty ? adItems.first : null;
+          if (adItem != null) {
+            var adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
             Future.delayed(adItem.waitingTimeToDisplay, () {
               _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-              // _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
+              _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
             });
           }
         }

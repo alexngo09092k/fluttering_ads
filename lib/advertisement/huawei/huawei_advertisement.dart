@@ -102,19 +102,19 @@ class HuaweiAdvertisement extends BaseAdvertisement {
   }
 
   @override
-  showAd({required AdvertisementItem adItem}) {
+  void showAd({required AdvertisementItem adItem, Function(dynamic error)? onAdFailedToLoad}) {
     switch (adItem.type) {
       case AdvertisementType.reward:
-        _loadRewardAd(adItem, (ad) => ad.show());
+        _loadRewardAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
         break;
       case AdvertisementType.interstitial:
-        _loadInterstitialAd(adItem, (ad) => ad.show());
+        _loadInterstitialAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
         break;
       case AdvertisementType.splash:
-        _loadSplashAd(adItem);
+        _loadSplashAd(adItem, (ad) => {}, (_) => {}, onAdFailedToLoad);
         break;
       case AdvertisementType.banner:
-        _loadBannerAd(adItem, (ad) => ad.show());
+        _loadBannerAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
         break;
       default:
         break;

@@ -18,7 +18,7 @@ class CustomAdvertisement extends BaseAdvertisement {
   final Map<String, CustomAd> _ads = {};
 
   @override
-  Widget? createAdWidget({required AdvertisementItem adItem, Function(dynamic)? onLoadedAd, Function(dynamic error)? onAdFailedToLoad}) {
+  Widget createAdWidget({required AdvertisementItem adItem, Function(dynamic)? onLoadedAd, Function(dynamic error)? onAdFailedToLoad}) {
     switch (adItem.type) {
       case AdvertisementType.banner:
         var bannerAd = _loadBannerAd(adItem, null, onLoadedAd, onAdFailedToLoad);
@@ -72,12 +72,13 @@ class CustomAdvertisement extends BaseAdvertisement {
   }
 
   @override
-  void showAd({required AdvertisementItem adItem}) {
+  void showAd({required AdvertisementItem adItem, Function(dynamic)? onAdFailedToLoad}) {
     loadAd(
       adItem: adItem,
       onLoadedAd: (ad) {
         (ad as CustomAd).show();
       },
+      onAdFailedToLoad: onAdFailedToLoad,
     );
   }
 

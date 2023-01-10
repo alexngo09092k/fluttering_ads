@@ -103,6 +103,11 @@ class AdvertisementItem {
     }
   }
 
+  bool canShow(String? sceen) {
+    if (sceen == null) return false;
+    return (showOnScreens.contains(sceen) || showOnScreens.isEmpty) && !hideOnScreens.contains(sceen);
+  }
+
   String toJson() => json.encode(toMap());
 
   factory AdvertisementItem.fromJson(String source) => AdvertisementItem.fromMap(json.decode(source));

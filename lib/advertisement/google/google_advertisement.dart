@@ -109,9 +109,10 @@ class GoogleAdvertisement extends BaseAdvertisement {
   }
 
   @override
-  showAd({required AdvertisementItem adItem}) {
-    loadAd(
+  void showAd({required AdvertisementItem adItem, Function(dynamic error)? onAdFailedToLoad}) {
+    return loadAd(
       adItem: adItem,
+      onAdFailedToLoad: onAdFailedToLoad,
       onLoadedAd: (ad) {
         switch (adItem.type) {
           case AdvertisementType.reward:

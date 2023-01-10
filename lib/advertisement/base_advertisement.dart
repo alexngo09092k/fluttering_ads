@@ -8,7 +8,7 @@ abstract class BaseAdvertisement {
 
   bool get isSupported;
 
-  void showAd({required AdvertisementItem adItem});
+  void showAd({required AdvertisementItem adItem, Function(dynamic error)? onAdFailedToLoad});
 
   void showLoadedAd({required dynamic loadedAd, required AdvertisementType type});
 
@@ -23,7 +23,7 @@ abstract class BaseAdvertisement {
     Function(dynamic error)? onAdFailedToLoad,
   });
 
-  Widget? createAdWidget({
+  Widget createAdWidget({
     required AdvertisementItem adItem,
     Function(dynamic)? onLoadedAd,
     Function(dynamic error)? onAdFailedToLoad,

@@ -5,4 +5,7 @@ export 'models/advertisement_config.dart';
 export 'models/advertisement_item.dart';
 export 'models/advertisement_provider.dart';
 export 'models/advertisement_type.dart';
+
+export 'widgets/ad_builder.dart';
+
 export 'advertisement.dart';

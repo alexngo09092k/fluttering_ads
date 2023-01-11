@@ -38,12 +38,12 @@ class _AdBuilderState extends ProviderState<AdBuilder, AwesomeAdvertisement> {
     return ClipRRect(
       borderRadius: widget.borderRadius,
       child: SizedBox(
-        width: widget.width,
-        height: widget.height,
+        width: canShow == false ? 0 : widget.width,
+        height: canShow == false ? 0 : widget.height,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (widget.errorBuilder != null && (canShow == false || canShow == null)) widget.errorBuilder!(context),
+            if (widget.errorBuilder != null && (canShow == null)) widget.errorBuilder!(context),
             if (adWidget != null && (canShow == true || canShow == null)) adWidget!,
           ],
         ),

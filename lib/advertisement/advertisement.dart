@@ -170,12 +170,18 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   @override
   Widget? widgetAd({AdvertisementItem? ad, Function(dynamic)? onLoadedAd, Function(dynamic)? onAdFailedToLoad}) {
     /// CHECKING ADS IS ENABLED
-    if (!config.enable) return null;
+    if (!config.enable) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Advertisement is not enabled'));
+      return null;
+    }
 
     if (_adLoadedList[AdvertisementViewType.widget] != null && _adLoadedList[AdvertisementViewType.widget]!.isNotEmpty) {
       if (ad != null) {
         final adItem = ad;
-        if (!adItem.canShow(_screenName)) return null;
+        if (!adItem.canShow(_screenName)) {
+          if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Advertisement is not enabled the screen $_screenName'));
+          return null;
+        }
 
         if (_adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
           /// LOAD FROM LOADED ADS
@@ -204,6 +210,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
     /// RESTORE ADS
     restore(AdvertisementViewType.widget);
+
+    if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Advertisement is not found'));
     return null;
   }
 

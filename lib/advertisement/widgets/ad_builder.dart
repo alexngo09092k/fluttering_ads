@@ -43,8 +43,8 @@ class _AdBuilderState extends ProviderState<AdBuilder, AwesomeAdvertisement> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if ((widget.errorBuilder != null && canShow == false) || canShow == null) widget.errorBuilder!(context),
-            if ((adWidget != null && canShow == true) || canShow == null) adWidget!,
+            if (widget.errorBuilder != null && (canShow == false || canShow == null)) widget.errorBuilder!(context),
+            if (adWidget != null && (canShow == true || canShow == null)) adWidget!,
           ],
         ),
       ),

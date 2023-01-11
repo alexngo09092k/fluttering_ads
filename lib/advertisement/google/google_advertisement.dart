@@ -26,6 +26,11 @@ class GoogleAdvertisement extends BaseAdvertisement {
     Function(dynamic)? onLoadedAd,
     Function(dynamic error)? onAdFailedToLoad,
   }) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Google Mobile Ads"));
+      return const SizedBox();
+    }
+
     return LayoutBuilder(builder: (context, boxConstraints) {
       final double width = adItem.width ?? boxConstraints.maxWidth;
       final double height = adItem.height ?? boxConstraints.maxHeight;
@@ -81,9 +86,14 @@ class GoogleAdvertisement extends BaseAdvertisement {
     required AdvertisementItem adItem,
     Function(dynamic)? onAd,
     Function(Ad)? onLoadedAd,
-    Function(LoadAdError error)? onAdFailedToLoad,
+    Function(dynamic error)? onAdFailedToLoad,
     AdSize? adSize,
   }) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Google Mobile Ads"));
+      return;
+    }
+
     switch (adItem.type) {
       case AdvertisementType.banner:
         _loadBannerAd(adItem, onAd, onLoadedAd, onAdFailedToLoad, adSize);
@@ -110,6 +120,11 @@ class GoogleAdvertisement extends BaseAdvertisement {
 
   @override
   void showAd({required AdvertisementItem adItem, Function(dynamic error)? onAdFailedToLoad}) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Google Mobile Ads"));
+      return;
+    }
+
     return loadAd(
       adItem: adItem,
       onAdFailedToLoad: onAdFailedToLoad,
@@ -136,6 +151,8 @@ class GoogleAdvertisement extends BaseAdvertisement {
 
   @override
   void hideAd(AdvertisementItem adItem) {
+    if (!isSupported) return;
+
     if (_ads.containsKey(adItem.id)) {
       _ads[adItem.id]!.dispose();
       _ads.remove(adItem.id);
@@ -144,6 +161,8 @@ class GoogleAdvertisement extends BaseAdvertisement {
 
   @override
   void showLoadedAd({required loadedAd, required AdvertisementType type}) {
+    if (!isSupported) return;
+
     switch (type) {
       case AdvertisementType.reward:
         (loadedAd as RewardedAd).show(onUserEarnedReward: (_, __) {});
@@ -161,6 +180,8 @@ class GoogleAdvertisement extends BaseAdvertisement {
 
   @override
   void hideLoadedAd({required loadedAd, required AdvertisementType type}) {
+    if (!isSupported) return;
+
     loadedAd!.dispose();
   }
 }

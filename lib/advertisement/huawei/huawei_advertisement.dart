@@ -26,6 +26,11 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     Function(dynamic)? onLoadedAd,
     Function(dynamic error)? onAdFailedToLoad,
   }) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Huawei Ads"));
+      return const SizedBox();
+    }
+
     return LayoutBuilder(builder: (context, boxConstraints) {
       final double width = adItem.width ?? boxConstraints.maxWidth;
       final double height = adItem.height ?? boxConstraints.maxHeight;
@@ -75,8 +80,12 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     required AdvertisementItem adItem,
     Function(dynamic)? onAd,
     Function(dynamic)? onLoadedAd,
-    Function(int? error)? onAdFailedToLoad,
+    Function(dynamic error)? onAdFailedToLoad,
   }) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Huawei Ads"));
+      return;
+    }
     switch (adItem.type) {
       case AdvertisementType.banner:
         _loadBannerAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
@@ -103,6 +112,10 @@ class HuaweiAdvertisement extends BaseAdvertisement {
 
   @override
   void showAd({required AdvertisementItem adItem, Function(dynamic error)? onAdFailedToLoad}) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Huawei Ads"));
+      return;
+    }
     switch (adItem.type) {
       case AdvertisementType.reward:
         _loadRewardAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
@@ -123,6 +136,8 @@ class HuaweiAdvertisement extends BaseAdvertisement {
 
   @override
   void hideAd(AdvertisementItem adItem) {
+    if (!isSupported) return;
+
     if (_ads.containsKey(adItem.id)) {
       var ad = _ads[adItem.id];
       switch (adItem.type) {
@@ -154,6 +169,8 @@ class HuaweiAdvertisement extends BaseAdvertisement {
 
   @override
   void hideLoadedAd({required loadedAd, required AdvertisementType type}) {
+    if (!isSupported) return;
+
     switch (type) {
       case AdvertisementType.banner:
         (loadedAd as BannerAd).destroy();
@@ -178,6 +195,8 @@ class HuaweiAdvertisement extends BaseAdvertisement {
 
   @override
   void showLoadedAd({required loadedAd, required AdvertisementType type}) {
+    if (!isSupported) return;
+
     switch (type) {
       case AdvertisementType.reward:
         loadedAd.show();

@@ -19,6 +19,11 @@ class CustomAdvertisement extends BaseAdvertisement {
 
   @override
   Widget createAdWidget({required AdvertisementItem adItem, Function(dynamic)? onLoadedAd, Function(dynamic error)? onAdFailedToLoad}) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Ads"));
+      return const SizedBox();
+    }
+
     switch (adItem.type) {
       case AdvertisementType.banner:
         var bannerAd = _loadBannerAd(adItem, null, onLoadedAd, onAdFailedToLoad);
@@ -43,6 +48,7 @@ class CustomAdvertisement extends BaseAdvertisement {
 
   @override
   void hideLoadedAd({required loadedAd, required AdvertisementType type}) {
+    if (!isSupported) return;
     (loadedAd as CustomAd).dispose();
   }
 
@@ -56,6 +62,11 @@ class CustomAdvertisement extends BaseAdvertisement {
     Function(dynamic ad)? onLoadedAd,
     Function(dynamic error)? onAdFailedToLoad,
   }) {
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Ads"));
+      return;
+    }
+
     switch (adItem.type) {
       case AdvertisementType.banner:
         _loadBannerAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
@@ -73,7 +84,11 @@ class CustomAdvertisement extends BaseAdvertisement {
 
   @override
   void showAd({required AdvertisementItem adItem, Function(dynamic)? onAdFailedToLoad}) {
-    loadAd(
+    if (!isSupported) {
+      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription("This device not support Ads"));
+      return;
+    }
+    return loadAd(
       adItem: adItem,
       onLoadedAd: (ad) {
         (ad as CustomAd).show();
@@ -84,6 +99,7 @@ class CustomAdvertisement extends BaseAdvertisement {
 
   @override
   void showLoadedAd({required loadedAd, required AdvertisementType type}) {
+    if (!isSupported) return;
     (loadedAd as CustomAd).show();
   }
 }

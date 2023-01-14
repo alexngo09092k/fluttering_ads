@@ -3,8 +3,9 @@ import 'package:fluttering/fluttering.dart';
 import 'package:fluttering_ads/fluttering_ads.dart';
 
 class AdBuilder extends StatefulWidget {
-  const AdBuilder({super.key, this.ad, this.errorBuilder, this.width, this.height, this.borderRadius});
+  const AdBuilder({super.key, this.ad, this.errorBuilder, this.width, this.height, this.borderRadius, required this.successBuilder});
   final Widget Function(BuildContext)? errorBuilder;
+  final Widget Function(BuildContext, Widget) successBuilder;
   final AdvertisementItem? ad;
   final double? width;
   final double? height;
@@ -45,7 +46,7 @@ class _AdBuilderState extends ProviderState<AdBuilder, AwesomeAdvertisement> {
           alignment: Alignment.center,
           children: [
             if (widget.errorBuilder != null && (canShow == null)) widget.errorBuilder!(context),
-            if (adWidget != null && (canShow == true || canShow == null)) adWidget!,
+            if (adWidget != null && (canShow == true || canShow == null)) widget.successBuilder(context, adWidget!),
           ],
         ),
       ),

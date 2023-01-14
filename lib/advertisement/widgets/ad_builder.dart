@@ -35,6 +35,7 @@ class _AdBuilderState extends ProviderState<AdBuilder, AwesomeAdvertisement> {
 
   @override
   Widget build(BuildContext context) {
+    if (!provider.config.enable) return const SizedBox();
     return ClipRRect(
       borderRadius: widget.borderRadius,
       child: SizedBox(

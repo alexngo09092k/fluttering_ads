@@ -85,7 +85,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
     /// LOAD ALL ADS
     for (var ad in config.ads) {
-      if (viewType != null && ad.viewType != viewType) return;
+      if (viewType != null && ad.viewType != viewType) continue;
 
       if (_advertisements.containsKey(ad.provider)) {
         if (_advertisements[ad.provider]!.isSupported) {
@@ -95,7 +95,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
           if (_adLoadedList[ad.viewType]!.containsKey(ad)) {
             /// LOADED AD YET
-            break;
+            continue;
           }
 
           /// AD IS NOT LOADED

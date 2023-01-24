@@ -169,7 +169,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
   @override
   bool get isSupported => _isSupported;
 
-  void checkHMSAvailability() async {
+  Future<void> checkHMSAvailability() async {
     try {
       final hmsApiAvailability = HmsApiAvailability();
       final int resultCode = await hmsApiAvailability.isHMSAvailable();

@@ -48,7 +48,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   }
 
   @override
-  void initial(AdvertisementConfig config) {
+  void initial(AdvertisementConfig config) async {
     _config = config;
 
     /// CHECKING ADS IS ENABLED
@@ -61,13 +61,19 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         case AdvertisementProvider.google:
           return MapEntry(provider, GoogleAdvertisement());
         case AdvertisementProvider.huawei:
-          return MapEntry(provider, HuaweiAdvertisement()..checkHMSAvailability());
+          return MapEntry(provider, HuaweiAdvertisement());
         case AdvertisementProvider.custom:
           return MapEntry(provider, CustomAdvertisement());
         default:
           return MapEntry(provider, CustomAdvertisement());
       }
     }));
+
+    /// CHECKING HAVE HMS CORE
+    if (_advertisements[AdvertisementProvider.huawei] != null) {
+      await (_advertisements[AdvertisementProvider.huawei] as HuaweiAdvertisement).checkHMSAvailability();
+      Debug.log('Huawei Ads Is Supported: ${_advertisements[AdvertisementProvider.huawei]!.isSupported}');
+    }
 
     /// CHECKING HAVE GOOGLE ADS
     bool googleAds = false;

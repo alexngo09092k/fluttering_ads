@@ -11,12 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_mobile_ads: ^2.3.0
-  huawei_ads: ^13.4.55+301
-  plugin_platform_interface: ^2.0.2
   fluttering:
     git:
       url: git@github.com:brennan992k/fluttering.git
+  google_mobile_ads: ^2.3.0
+  huawei_ads: ^13.4.55+301
+  plugin_platform_interface: ^2.0.2
+  huawei_hmsavailability: ^6.6.0+300
 
 dev_dependencies:
   flutter_test:

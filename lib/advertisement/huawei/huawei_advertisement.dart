@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttering/fluttering.dart';
 import 'package:huawei_ads/huawei_ads.dart';
+import 'package:huawei_hmsavailability/huawei_hmsavailability.dart';
 
 import '../models/advertisement_type.dart';
 import '../models/advertisement_provider.dart';
@@ -164,8 +165,19 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     }
   }
 
+  bool _isSupported = DeviceInfo.instance.android != null && (DeviceInfo.instance.android!.manufacturer ?? '').toUpperCase() == 'HUAWEI';
   @override
-  bool get isSupported => DeviceInfo.instance.android != null && (DeviceInfo.instance.android!.manufacturer ?? '').toUpperCase() == 'HUAWEI';
+  bool get isSupported => _isSupported;
+
+  void checkHMSAvailability() async {
+    try {
+      final hmsApiAvailability = HmsApiAvailability();
+      final int resultCode = await hmsApiAvailability.isHMSAvailable();
+      _isSupported = resultCode == 0;
+    } catch (e) {
+      Debug.log(e);
+    }
+  }
 
   @override
   void hideLoadedAd({required loadedAd, required AdvertisementType type}) {

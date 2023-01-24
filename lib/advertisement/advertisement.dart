@@ -61,7 +61,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         case AdvertisementProvider.google:
           return MapEntry(provider, GoogleAdvertisement());
         case AdvertisementProvider.huawei:
-          return MapEntry(provider, HuaweiAdvertisement());
+          return MapEntry(provider, HuaweiAdvertisement()..checkHMSAvailability());
         case AdvertisementProvider.custom:
           return MapEntry(provider, CustomAdvertisement());
         default:

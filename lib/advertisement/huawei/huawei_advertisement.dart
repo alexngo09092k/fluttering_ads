@@ -174,8 +174,9 @@ class HuaweiAdvertisement extends BaseAdvertisement {
       final hmsApiAvailability = HmsApiAvailability();
       final int resultCode = await hmsApiAvailability.isHMSAvailable();
       _isSupported = resultCode == 0;
+      Debug.log('checkHMSAvailability HMS Availability Code: $resultCode');
     } catch (e) {
-      Debug.log(e);
+      Debug.log('checkHMSAvailability $e');
     }
   }
 

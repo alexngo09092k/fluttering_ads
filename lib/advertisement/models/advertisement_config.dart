@@ -9,12 +9,14 @@ class AdvertisementConfig {
   final bool enable;
   final String adMobAppIdAndroid;
   final String adMobAppIdIos;
+  final List<AdvertisementProvider> providers;
 
   const AdvertisementConfig({
     this.ads = const <AdvertisementItem>[],
     this.enable = false,
     this.adMobAppIdAndroid = '',
     this.adMobAppIdIos = '',
+    this.providers = const [AdvertisementProvider.google],
   });
 
   AdvertisementConfig copyWith({
@@ -24,13 +26,14 @@ class AdvertisementConfig {
     bool? enable,
     String? adMobAppIdAndroid,
     String? adMobAppIdIos,
-    AdvertisementProvider? adProvider,
+    List<AdvertisementProvider>? providers,
   }) {
     return AdvertisementConfig(
       ads: ads ?? this.ads,
       enable: enable ?? this.enable,
       adMobAppIdAndroid: adMobAppIdAndroid ?? this.adMobAppIdAndroid,
       adMobAppIdIos: adMobAppIdIos ?? this.adMobAppIdIos,
+      providers: providers ?? this.providers,
     );
   }
 
@@ -40,6 +43,7 @@ class AdvertisementConfig {
       'enable': enable,
       'adMobAppIdAndroid': adMobAppIdAndroid,
       'adMobAppIdIos': adMobAppIdIos,
+      'providers': providers.map((e) => e.name).toList(),
     };
   }
 
@@ -49,6 +53,7 @@ class AdvertisementConfig {
       enable: map['enable'] ?? false,
       adMobAppIdAndroid: map['adMobAppIdAndroid'] ?? '',
       adMobAppIdIos: map['adMobAppIdIos'] ?? '',
+      providers: List<AdvertisementProvider>.from(map['providers']?.map((e) => AdvertisementProvider.values.firstWhere((element) => element.name == e))),
     );
   }
 
@@ -58,7 +63,7 @@ class AdvertisementConfig {
 
   @override
   String toString() {
-    return 'AdvertisementConfig(ads: $ads, enable: $enable, adMobAppIdAndroid: $adMobAppIdAndroid, adMobAppIdIos: $adMobAppIdIos)';
+    return 'AdvertisementConfig(ads: $ads, enable: $enable, adMobAppIdAndroid: $adMobAppIdAndroid, adMobAppIdIos: $adMobAppIdIos, providers: $providers)';
   }
 
   @override
@@ -69,11 +74,12 @@ class AdvertisementConfig {
         listEquals(other.ads, ads) &&
         other.enable == enable &&
         other.adMobAppIdAndroid == adMobAppIdAndroid &&
-        other.adMobAppIdIos == adMobAppIdIos;
+        other.adMobAppIdIos == adMobAppIdIos &&
+        other.providers == providers;
   }
 
   @override
   int get hashCode {
-    return ads.hashCode ^ enable.hashCode ^ adMobAppIdAndroid.hashCode ^ adMobAppIdIos.hashCode;
+    return ads.hashCode ^ enable.hashCode ^ adMobAppIdAndroid.hashCode ^ adMobAppIdIos.hashCode ^ providers.hashCode;
   }
 }

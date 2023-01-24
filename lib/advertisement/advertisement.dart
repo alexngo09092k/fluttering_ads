@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fluttering/fluttering.dart';
+import 'package:fluttering_ads/advertisement/base_advertisement.dart';
 import 'package:fluttering_ads/advertisement/custom_ads/custom_advertisement.dart';
 import 'package:fluttering_ads/advertisement/index.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -34,11 +35,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
   final Map<AdvertisementViewType, Map<AdvertisementItem, dynamic>> _adLoadedList = {};
 
-  final _advertisements = {
-    AdvertisementProvider.google: GoogleAdvertisement(),
-    AdvertisementProvider.huawei: HuaweiAdvertisement(),
-    AdvertisementProvider.custom: CustomAdvertisement(),
-  };
+  final Map<AdvertisementProvider, BaseAdvertisement> _advertisements = {};
 
   String? _screenName;
 
@@ -56,6 +53,21 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
     /// CHECKING ADS IS ENABLED
     if (!config.enable) return;
+
+    /// CREATE INSTANCE ADS
+    _advertisements.clear();
+    _advertisements.addAll(config.providers.asMap().map((_, provider) {
+      switch (provider) {
+        case AdvertisementProvider.google:
+          return MapEntry(provider, GoogleAdvertisement());
+        case AdvertisementProvider.huawei:
+          return MapEntry(provider, HuaweiAdvertisement());
+        case AdvertisementProvider.custom:
+          return MapEntry(provider, CustomAdvertisement());
+        default:
+          return MapEntry(provider, CustomAdvertisement());
+      }
+    }));
 
     /// CHECKING HAVE GOOGLE ADS
     bool googleAds = false;

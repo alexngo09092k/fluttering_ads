@@ -171,6 +171,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
 
   Future<void> checkHMSAvailability() async {
     try {
+      if (!CurrentPlatform.instance.isAndroid) return;
       final hmsApiAvailability = HmsApiAvailability();
       final int resultCode = await hmsApiAvailability.isHMSAvailable();
       _isSupported = resultCode == 0;

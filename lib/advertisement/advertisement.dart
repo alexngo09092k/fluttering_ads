@@ -68,8 +68,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         }
       }
       if(adProvider != null) {
-        await adProvider.initial();
-        _advertisements[provider] = adProvider;
+        final done = await adProvider.initial();
+        if(done) _advertisements[provider] = adProvider;
       }
     }
 

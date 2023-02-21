@@ -222,7 +222,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
       Debug.log('HuaweiAdvertisement is supported $_isSupported');
       return true;
     }catch(error) {
-      Debug.log("GoogleAdvertisement initial");
+      Debug.log("HuaweiAdvertisement initial error $error");
     }
     return false;
   }

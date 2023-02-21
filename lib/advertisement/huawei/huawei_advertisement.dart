@@ -217,7 +217,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     @override
   Future<bool> initial() async {
     try {
-      _isSupported = !CurrentPlatform.instance.isIos || await CurrentPlatform.instance.isHmsAvailable;
+      _isSupported = !CurrentPlatform.instance.isIos && await CurrentPlatform.instance.isHmsAvailable;
       Debug.log('HuaweiAdvertisement is supported $_isSupported');
       return true;
     }catch(error) {

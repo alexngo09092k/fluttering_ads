@@ -102,4 +102,9 @@ class CustomAdvertisement extends BaseAdvertisement {
     if (!isSupported) return;
     (loadedAd as CustomAd).show();
   }
+
+  @override
+  Future<bool> initial() async {
+    return true;
+  }
 }

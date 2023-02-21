@@ -57,14 +57,19 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// CREATE INSTANCE ADS
     _advertisements.clear();
     for (var provider in _config.providers) {
+      BaseAdvertisement? adProvider;
       if(!_advertisements.containsKey(provider)) {
         if(provider == AdvertisementProvider.google) {
-          _advertisements[provider] = GoogleAdvertisement();
+          adProvider = GoogleAdvertisement();
         }else if(provider == AdvertisementProvider.huawei) {
-          _advertisements[provider] = HuaweiAdvertisement();
+          adProvider = HuaweiAdvertisement();
         }else if(provider ==  AdvertisementProvider.custom) {
-          _advertisements[provider] = CustomAdvertisement();
+          adProvider = CustomAdvertisement();
         }
+      }
+      if(adProvider != null) {
+        await adProvider.initial();
+        _advertisements[provider] = adProvider;
       }
     }
 

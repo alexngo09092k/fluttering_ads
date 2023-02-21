@@ -164,8 +164,10 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     }
   }
 
+  bool _isSupported = CurrentPlatform.instance.isHuawei;
+
   @override
-  bool get isSupported => CurrentPlatform.instance.isHuawei;
+  bool get isSupported => _isSupported;
 
   @override
   void hideLoadedAd({required loadedAd, required AdvertisementType type}) {
@@ -210,5 +212,18 @@ class HuaweiAdvertisement extends BaseAdvertisement {
       default:
         break;
     }
+  }
+
+    @override
+  Future<bool> initial() async {
+    try {
+      if(CurrentPlatform.instance.isIos) return true;
+      _isSupported = await CurrentPlatform.instance.isHmsAvailable;
+      Debug.log('HuaweiAdvertisement is supported $_isSupported');
+      return true;
+    }catch(error) {
+      Debug.log("GoogleAdvertisement initial");
+    }
+    return false;
   }
 }

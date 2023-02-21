@@ -8,6 +8,8 @@ abstract class BaseAdvertisement {
 
   bool get isSupported;
 
+  Future<bool> initial();
+
   void showAd({required AdvertisementItem adItem, Function(dynamic error)? onAdFailedToLoad});
 
   void showLoadedAd({required dynamic loadedAd, required AdvertisementType type});

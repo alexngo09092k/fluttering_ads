@@ -146,8 +146,10 @@ class GoogleAdvertisement extends BaseAdvertisement {
     );
   }
 
+  bool _isSupported = CurrentPlatform.instance.isMobile;
+
   @override
-  bool get isSupported => CurrentPlatform.instance.isMobile;
+  bool get isSupported => _isSupported;
 
   @override
   void hideAd(AdvertisementItem adItem) {
@@ -183,5 +185,17 @@ class GoogleAdvertisement extends BaseAdvertisement {
     if (!isSupported) return;
 
     loadedAd!.dispose();
+  }
+
+  @override
+  Future<bool> initial() async {
+    try {
+      _isSupported = await CurrentPlatform.instance.isGmsAvailable;
+      Debug.log('GoogleAdvertisement is supported $_isSupported');
+      return true;
+    }catch(error) {
+      Debug.log("GoogleAdvertisement initial");
+    }
+    return false;
   }
 }

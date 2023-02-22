@@ -62,7 +62,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         if(provider == AdvertisementProvider.google) {
           adProvider = GoogleAdvertisement();
         }else if(provider == AdvertisementProvider.huawei) {
-          adProvider = HuaweiAdvertisement();
+          // adProvider = HuaweiAdvertisement();
         }else if(provider ==  AdvertisementProvider.custom) {
           adProvider = CustomAdvertisement();
         }

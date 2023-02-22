@@ -15,7 +15,6 @@ dependencies:
     git:
       url: git@github.com:brennan992k/fluttering.git
   google_mobile_ads: ^2.3.0
-  huawei_ads: ^13.4.55+301
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:

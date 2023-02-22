@@ -190,7 +190,7 @@ class GoogleAdvertisement extends BaseAdvertisement {
   @override
   Future<bool> initial() async {
     try {
-      _isSupported = CurrentPlatform.instance.isIos || await CurrentPlatform.instance.isGmsAvailable;
+      _isSupported = await CurrentPlatform.instance.isGmsAvailable;
       Debug.log('GoogleAdvertisement is supported $_isSupported');
       return true;
     }catch(error) {

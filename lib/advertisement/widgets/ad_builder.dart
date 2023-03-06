@@ -15,7 +15,7 @@ class AdBuilder extends StatefulWidget {
   State<AdBuilder> createState() => _AdBuilderState();
 }
 
-class _AdBuilderState extends ProviderState<AdBuilder, AwesomeAdvertisement> {
+class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> {
   Widget? adWidget;
   bool? canShow;
 

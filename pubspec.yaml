@@ -14,9 +14,9 @@ dependencies:
   fluttering:
     git:
       url: git@github.com:brennan992k/fluttering.git
-  google_mobile_ads: ^2.3.0
-  huawei_ads: ^13.4.55+301
-  plugin_platform_interface: ^2.0.2
+  google_mobile_ads: 
+  huawei_ads: 
+  plugin_platform_interface: 
 
 dev_dependencies:
   flutter_test:

@@ -53,7 +53,7 @@ class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> 
         child: Stack(
           alignment: Alignment.center,
           children: [
-            adWidget != null && canShow == true ? widget.successBuilder(context, adWidget!):
+            adWidget != null && (canShow == true || canShow == null) ? widget.successBuilder(context, adWidget!):
             (widget.errorBuilder != null ? widget.errorBuilder!(context): const SizedBox()),
           ],
         ),

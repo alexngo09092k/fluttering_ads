@@ -76,6 +76,7 @@ class GoogleAdvertisement extends BaseAdvertisement {
             ),
           );
         default:
+          if(onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Can not found ads widget'));
           return const SizedBox();
       }
     });

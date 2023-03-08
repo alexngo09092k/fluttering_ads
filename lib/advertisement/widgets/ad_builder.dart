@@ -17,21 +17,29 @@ class AdBuilder extends StatefulWidget {
 
 class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> {
   Widget? adWidget;
-  bool canShow = false;
+  bool? canShow;
 
   @override
   void initState() {
     super.initState();
     adWidget = provider.widgetAd(
-        ad: widget.ad,
-        onLoadedAd: (_) {
-          canShow = true;
-          setState(() {});
-        },
-        onAdFailedToLoad: (_) {
-          canShow = false;
-          setState(() {});
-        });
+      ad: widget.ad,
+      onLoadedAd: (_) {
+        canShow = true;
+        setState(() {});
+      },
+      onAdFailedToLoad: (_) {
+        canShow = false;
+        setState(() {});
+      },
+    );
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if(canShow == null) {
+        canShow = false;
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -40,8 +48,8 @@ class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> 
     return ClipRRect(
       borderRadius: widget.borderRadius,
       child: SizedBox(
-        width: (widget.errorBuilder == null && canShow != true) ? 0 : widget.width,
-        height: (widget.errorBuilder == null && canShow != true) ? 0 : widget.height,
+        width: (widget.errorBuilder == null && canShow == false) ? 0 : widget.width,
+        height: (widget.errorBuilder == null && canShow == false) ? 0 : widget.height,
         child: Stack(
           alignment: Alignment.center,
           children: [

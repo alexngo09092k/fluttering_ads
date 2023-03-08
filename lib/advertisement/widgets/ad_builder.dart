@@ -3,19 +3,30 @@ import 'package:fluttering/fluttering.dart';
 import 'package:fluttering_ads/fluttering_ads.dart';
 
 class AdBuilder extends StatefulWidget {
-  const AdBuilder({super.key, this.ad, this.errorBuilder, this.width, this.height, this.borderRadius, required this.successBuilder});
+  const AdBuilder({
+    super.key,
+    this.ad,
+    this.errorBuilder,
+    this.width,
+    this.height,
+    this.borderRadius,
+    required this.successBuilder,
+    this.awaitTime = const Duration(seconds: 2),
+  });
   final Widget Function(BuildContext)? errorBuilder;
   final Widget Function(BuildContext, Widget) successBuilder;
   final AdvertisementItem? ad;
   final double? width;
   final double? height;
   final BorderRadiusGeometry? borderRadius;
+  final Duration awaitTime;
 
   @override
   State<AdBuilder> createState() => _AdBuilderState();
 }
 
-class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> {
+class _AdBuilderState
+    extends ProviderStateful<AdBuilder, AwesomeAdvertisement> {
   Widget? adWidget;
   bool? canShow;
 
@@ -34,8 +45,8 @@ class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> 
       },
     );
 
-    Future.delayed(const Duration(seconds: 5), () {
-      if(canShow == null) {
+    Future.delayed(widget.awaitTime, () {
+      if (canShow == null) {
         canShow = false;
         setState(() {});
       }
@@ -48,13 +59,14 @@ class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> 
     return ClipRRect(
       borderRadius: widget.borderRadius,
       child: SizedBox(
-        width: (widget.errorBuilder == null && canShow == false) ? 0 : widget.width,
-        height: (widget.errorBuilder == null && canShow == false) ? 0 : widget.height,
+        width: (widget.errorBuilder == null && canShow == false)? 0: widget.width,
+        height: (widget.errorBuilder == null && canShow == false)? 0: widget.height,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            adWidget != null && (canShow == true || canShow == null) ? widget.successBuilder(context, adWidget!):
-            (widget.errorBuilder != null ? widget.errorBuilder!(context): const SizedBox()),
+            adWidget != null && (canShow == true || canShow == null)
+                ? widget.successBuilder(context, adWidget!)
+                : (widget.errorBuilder != null? widget.errorBuilder!(context): const SizedBox()),
           ],
         ),
       ),

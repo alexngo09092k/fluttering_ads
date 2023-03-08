@@ -70,6 +70,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
             ),
           );
         default:
+          if(onAdFailedToLoad != null) onAdFailedToLoad('Can not found ads widget');
           return const SizedBox();
       }
     });

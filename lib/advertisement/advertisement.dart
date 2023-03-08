@@ -220,6 +220,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
       final adItem = adItems.isNotEmpty ? adItems.first : null;
       if (adItem != null) {
         final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
+        _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
         return adLoaded;
       }
     }

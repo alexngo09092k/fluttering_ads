@@ -38,7 +38,7 @@ extension InstreamAdEx on HuaweiAdvertisement {
           instreamAds: instreamAds,
           controller: controller,
         );
-        if (onLoadedAd != null && _ads[adItem.id] != null) onLoadedAd(_ads[adItem.id]);
+        if (onLoadedAd != null && _ads[adItem.id] != null) await onLoadedAd(_ads[adItem.id]);
         await controller.mute();
         controller.play();
       },

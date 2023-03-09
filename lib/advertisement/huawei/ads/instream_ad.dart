@@ -7,11 +7,12 @@ extension InstreamAdEx on HuaweiAdvertisement {
     Function(InstreamAdView?)? onLoadedAd,
     Function(int? error)? onAdFailedToLoad,
   ]) async {
-    InstreamAdViewController controller = InstreamAdViewController(onInstreamAdViewCreated: (_) {
+    _instreamAdViewController ??= InstreamAdViewController(onInstreamAdViewCreated: (_) async {
       Debug.log('loadInstreamAdView created');
-      // if (onAd != null) {
-      //   onAd(ad!);
-      // }
+      if(_instreamAdViewController != null) {
+        await _instreamAdViewController!.mute();
+        _instreamAdViewController!.play();
+      }
     }, onClick: () {
       Debug.log('loadInstreamAdView clicked');
     }, onSegmentMediaChange: (instreamAd) {
@@ -36,11 +37,9 @@ extension InstreamAdEx on HuaweiAdvertisement {
         Debug.log('loaded InstreamAdView');
         _ads[adItem.id] = InstreamAdView(
           instreamAds: instreamAds,
-          controller: controller,
+          controller: _instreamAdViewController,
         );
-        if (onLoadedAd != null && _ads[adItem.id] != null) await onLoadedAd(_ads[adItem.id]);
-        await controller.mute();
-        controller.play();
+        if (onLoadedAd != null && _ads[adItem.id] != null) onLoadedAd(_ads[adItem.id]);
       },
     ).loadAd(adParam: AdParam());
     await Future.delayed(const Duration(seconds: 2));

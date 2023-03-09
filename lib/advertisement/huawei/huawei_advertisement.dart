@@ -20,6 +20,9 @@ class HuaweiAdvertisement extends BaseAdvertisement {
 
   final Map<String, dynamic> _ads = {};
 
+  InstreamAdViewController? _instreamAdViewController;
+  NativeAdController? _nativeAdController;
+
   @override
   Widget createAdWidget({
     required AdvertisementItem adItem,

@@ -28,7 +28,6 @@ extension SplashAdEx on HuaweiAdvertisement {
         adSlotId: adItem.id,
         orientation: SplashAdOrientation.portrait,
         adParam: AdParam(),
-        topMargin: 50,
       );
 
     if (onAd != null) {

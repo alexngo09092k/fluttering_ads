@@ -25,10 +25,10 @@ class AdBuilder extends StatefulWidget {
   State<AdBuilder> createState() => _AdBuilderState();
 }
 
-class _AdBuilderState
-    extends ProviderStateful<AdBuilder, AwesomeAdvertisement> {
+class _AdBuilderState extends ProviderStateful<AdBuilder, AwesomeAdvertisement> {
   Widget? adWidget;
   bool? canShow;
+  bool disposed = false;
 
   @override
   void initState() {
@@ -46,11 +46,17 @@ class _AdBuilderState
     );
 
     Future.delayed(widget.awaitTime, () {
-      if (canShow == null) {
+      if (canShow == null && !disposed) {
         canShow = false;
         setState(() {});
       }
     });
+  }
+
+  @override
+  void dispose() {
+    disposed = true;
+    super.dispose();
   }
 
   @override

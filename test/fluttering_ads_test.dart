@@ -19,10 +19,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    // FlutteringAds flutteringAdsPlugin = FlutteringAds();
     MockFlutteringAdsPlatform fakePlatform = MockFlutteringAdsPlatform();
     FlutteringAdsPlatform.instance = fakePlatform;
-
-    // expect(await flutteringAdsPlugin.getPlatformVersion(), '42');
   });
 }

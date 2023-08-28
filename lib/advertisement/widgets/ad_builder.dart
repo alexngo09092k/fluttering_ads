@@ -9,7 +9,7 @@ class AdBuilder extends StatefulWidget {
     this.errorBuilder,
     this.width,
     this.height,
-    this.borderRadius,
+    this.borderRadius = BorderRadius.zero,
     required this.successBuilder,
     this.awaitTime = const Duration(seconds: 2),
   });
@@ -18,7 +18,7 @@ class AdBuilder extends StatefulWidget {
   final AdvertisementItem? ad;
   final double? width;
   final double? height;
-  final BorderRadiusGeometry? borderRadius;
+  final BorderRadiusGeometry borderRadius;
   final Duration awaitTime;
 
   @override

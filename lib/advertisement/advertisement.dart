@@ -9,7 +9,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 //! READ https://developers.google.com/admob/flutter/app-open
 
-abstract class IAwesomeAdvertisement extends Provider with ProviderObserver, ProviderDelegate {
+abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate  implements ProviderObserver {
   AdvertisementConfig get config;
 
   void initial(AdvertisementConfig config);
@@ -270,7 +270,6 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPop(route, previousRoute);
     if (previousRoute is PageRoute && route is PageRoute) {
       _sendScreenView(previousRoute);
     }
@@ -278,7 +277,6 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPush(route, previousRoute);
     if (route is PageRoute) {
       _sendScreenView(route);
     }
@@ -286,7 +284,6 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
     if (newRoute is PageRoute) {
       _sendScreenView(newRoute);
     }

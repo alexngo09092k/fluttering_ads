@@ -16,7 +16,8 @@ extension OpenAppEx on GoogleAdvertisement {
           Debug.log('app open add loaded');
           // Keep a reference to the ad so you can show it later.
           ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdShowedFullScreenContent: (AppOpenAd ad) => Debug.log('$ad onAdShowedFullScreenContent.'),
+            onAdShowedFullScreenContent: (AppOpenAd ad) =>
+                Debug.log('$ad onAdShowedFullScreenContent.'),
             onAdDismissedFullScreenContent: (AppOpenAd ad) {
               Debug.log('$ad onAdDismissedFullScreenContent.');
               ad.dispose();
@@ -25,7 +26,8 @@ extension OpenAppEx on GoogleAdvertisement {
               Debug.log('$ad onAdFailedToShowFullScreenContent: $error');
               ad.dispose();
             },
-            onAdImpression: (AppOpenAd ad) => Debug.log('$ad impression occurred.'),
+            onAdImpression: (AppOpenAd ad) =>
+                Debug.log('$ad impression occurred.'),
           );
           if (onLoadedAd != null) onLoadedAd(ad);
           if (onAd != null) {
@@ -37,7 +39,6 @@ extension OpenAppEx on GoogleAdvertisement {
           if (onAdFailedToLoad != null) onAdFailedToLoad(error);
         },
       ),
-      orientation: AppOpenAd.orientationPortrait,
     );
   }
 }

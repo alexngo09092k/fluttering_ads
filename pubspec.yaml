@@ -1,7 +1,7 @@
 name: fluttering_ads
 description: Ads for fluttering (support google ad and huawei ad).
 publish_to: none
-version: 2.0.0
+version: 3.0.0
 homepage:
 
 environment:

@@ -9,7 +9,8 @@ extension NativeAdEx on HuaweiAdvertisement {
     NativeAdType type = NativeAdType.banner,
   ]) {
     _nativeAdController ??= NativeAdController(
-      adConfiguration: NativeAdConfiguration()..choicesPosition = NativeAdChoicesPosition.BOTTOM_LEFT,
+      adConfiguration: NativeAdConfiguration()
+        ..choicesPosition = NativeAdChoicesPosition.BOTTOM_LEFT,
       listener: (AdEvent event, {errorCode}) {
         Debug.log('loadNativeAd $event');
         switch (event) {
@@ -17,6 +18,7 @@ extension NativeAdEx on HuaweiAdvertisement {
           //  case AdEvent.leave:
           case AdEvent.failed:
             if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            _ads.remove(adItem.id);
             break;
           //  case AdEvent.clicked:
           //  case AdEvent.impression:
@@ -25,7 +27,12 @@ extension NativeAdEx on HuaweiAdvertisement {
           case AdEvent.opened:
             if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
             break;
+          case AdEvent.closed:
+          case AdEvent.leave:
+            _ads.remove(adItem.id);
+            break;
           default:
+            break;
         }
       },
     );

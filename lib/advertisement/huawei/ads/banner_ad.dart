@@ -7,7 +7,7 @@ extension BannerAdEx on HuaweiAdvertisement {
     Function(BannerAd?)? onLoadedAd,
     Function(int? error)? onAdFailedToLoad,
   ]) {
-    _ads[adItem.id] = BannerAd(
+    final ad = BannerAd(
       adSlotId: adItem.id,
       size: BannerAdSize.s468x60,
       adParam: AdParam(),
@@ -19,21 +19,31 @@ extension BannerAdEx on HuaweiAdvertisement {
           //  case AdEvent.leave:
           case AdEvent.failed:
             if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            _ads.remove(adItem.id);
             break;
           //  case AdEvent.clicked:
           //  case AdEvent.impression:
           //  case AdEvent.disliked:
           case AdEvent.loaded:
-          case AdEvent.opened:
             if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
+            if (onAd != null) onAd(_ads[adItem.id]!);
+            break;
+          case AdEvent.opened:
+            break;
+          case AdEvent.closed:
+          case AdEvent.leave:
+            try {
+              (_ads[adItem.id] as BannerAd?)?.destroy();
+            } catch (_) {}
+            _ads.remove(adItem.id);
             break;
           default:
+            break;
         }
       },
     )..loadAd();
-    if (onAd != null && _ads[adItem.id] != null) {
-      onAd(_ads[adItem.id]!);
-    }
-    return _ads[adItem.id]!;
+
+    _ads[adItem.id] = ad;
+    return ad;
   }
 }

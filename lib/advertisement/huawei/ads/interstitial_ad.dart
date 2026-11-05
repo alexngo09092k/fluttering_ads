@@ -7,32 +7,39 @@ extension InterstitialAdEx on HuaweiAdvertisement {
     Function(InterstitialAd?)? onLoadedAd,
     Function(int? error)? onAdFailedToLoad,
   ]) {
-    _ads[adItem.id] = InterstitialAd(
-        adSlotId: adItem.id,
-        adParam: AdParam(),
-        listener: (AdEvent event, {int? errorCode}) {
-          Debug.log('loadInterstitialAd $event');
-          switch (event) {
-            //  case AdEvent.closed:
-            //  case AdEvent.leave:
-            case AdEvent.failed:
-              if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
-              break;
-            //  case AdEvent.clicked:
-            //  case AdEvent.impression:
-            //  case AdEvent.disliked:
-            case AdEvent.loaded:
-            case AdEvent.opened:
-              if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
-              break;
-            default:
-          }
-        })
-      ..loadAd();
+    final ad = InterstitialAd(
+      adSlotId: adItem.id,
+      adParam: AdParam(),
+      listener: (AdEvent event, {int? errorCode}) {
+        Debug.log('loadInterstitialAd $event');
+        switch (event) {
+          //  case AdEvent.closed:
+          //  case AdEvent.leave:
+          case AdEvent.failed:
+            if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            break;
+          //  case AdEvent.clicked:
+          //  case AdEvent.impression:
+          //  case AdEvent.disliked:
+          case AdEvent.loaded:
+            if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
+            // Chỉ gọi onAd (thường là show) SAU KHI loaded
+            if (onAd != null) onAd(_ads[adItem.id]!);
+            break;
+          case AdEvent.closed:
+            // Bắt buộc destroy khi đóng
+            try {
+              (_ads[adItem.id] as InterstitialAd?)?.destroy();
+            } catch (_) {}
+            _ads.remove(adItem.id);
+            break;
+          default:
+            break;
+        }
+      },
+    )..loadAd();
 
-    if (onAd != null) {
-      onAd(_ads[adItem.id]);
-    }
-    return _ads[adItem.id];
+    _ads[adItem.id] = ad;
+    return ad;
   }
 }

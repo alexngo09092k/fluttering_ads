@@ -7,32 +7,38 @@ extension RewardAdEx on HuaweiAdvertisement {
     Function(RewardAd?)? onLoadedAd,
     Function(int? error)? onAdFailedToLoad,
   ]) {
-    _ads[adItem.id] = RewardAd(listener: (RewardAdEvent? event, {Reward? reward, int? errorCode}) {
-      Debug.log('loadRewardAd $event');
-      switch (event) {
-        // case RewardAdEvent.leftApp:
-        // case RewardAdEvent.closed:
-        case RewardAdEvent.failedToLoad:
-          if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
-          break;
-        // case RewardAdEvent.started:
-        // case RewardAdEvent.completed:
-        // case RewardAdEvent.rewarded:
-        case RewardAdEvent.loaded:
-        case RewardAdEvent.opened:
-          if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
-          break;
-        default:
-      }
-    })
-      ..loadAd(
+    final ad = RewardAd(
+      listener: (RewardAdEvent? event, {Reward? reward, int? errorCode}) {
+        Debug.log('loadRewardAd $event');
+        switch (event) {
+          // case RewardAdEvent.leftApp:
+          // case RewardAdEvent.closed:
+          case RewardAdEvent.failedToLoad:
+            if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            break;
+          // case RewardAdEvent.started:
+          // case RewardAdEvent.completed:
+          // case RewardAdEvent.rewarded:
+          case RewardAdEvent.loaded:
+            if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
+            if (onAd != null) onAd(_ads[adItem.id]!);
+            break;
+          case RewardAdEvent.closed:
+            try {
+              (_ads[adItem.id] as RewardAd?)?.destroy();
+            } catch (_) {}
+            _ads.remove(adItem.id);
+            break;
+          default:
+            break;
+        }
+      },
+    )..loadAd(
         adSlotId: adItem.id,
         adParam: AdParam(),
       );
 
-    if (onAd != null) {
-      onAd(_ads[adItem.id]);
-    }
-    return _ads[adItem.id];
+    _ads[adItem.id] = ad;
+    return ad;
   }
 }

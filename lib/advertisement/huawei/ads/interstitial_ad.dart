@@ -1,43 +1,63 @@
 part of '../huawei_advertisement.dart';
 
 extension InterstitialAdEx on HuaweiAdvertisement {
+  static const int _maxRetry = 2;
+
   InterstitialAd _loadInterstitialAd(
     AdvertisementItem adItem, [
     Function(InterstitialAd)? onAd,
     Function(InterstitialAd?)? onLoadedAd,
     Function(int? error)? onAdFailedToLoad,
+    int retry = 0,
   ]) {
+    final existing = _ads[adItem.id];
+    if (existing is InterstitialAd && _loadedFlags[adItem.id] == true) {
+      if (onLoadedAd != null) onLoadedAd(existing);
+      if (onAd != null) onAd(existing);
+      return existing;
+    }
+
     final ad = InterstitialAd(
       adSlotId: adItem.id,
       adParam: AdParam(),
       listener: (AdEvent event, {int? errorCode}) {
-        Debug.log('loadInterstitialAd $event');
+        Debug.log('Huawei InterstitialAd $event code=$errorCode');
         switch (event) {
-          //  case AdEvent.closed:
-          //  case AdEvent.leave:
           case AdEvent.failed:
-            if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            _loadedFlags.remove(adItem.id);
+            try {
+              (_ads[adItem.id] as InterstitialAd?)?.destroy();
+            } catch (_) {}
             _ads.remove(adItem.id);
+            if (retry < _maxRetry) {
+              Debug.log('Huawei InterstitialAd retry ${retry + 1}/$_maxRetry');
+              Future.delayed(Duration(milliseconds: 400 * (retry + 1)), () {
+                _loadInterstitialAd(adItem, onAd, onLoadedAd, onAdFailedToLoad, retry + 1);
+              });
+            } else {
+              if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            }
             break;
-          //  case AdEvent.clicked:
-          //  case AdEvent.impression:
-          //  case AdEvent.disliked:
           case AdEvent.loaded:
-            // Only call onAd (usually show) AFTER the ad is fully loaded.
-            // Calling show() before loaded causes countdown stuck at 1 on Huawei.
+            // Only call onAd (usually show) AFTER loaded.
+            _loadedFlags[adItem.id] = true;
             if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
-            // Chỉ gọi onAd (thường là show) SAU KHI loaded
             if (onAd != null) onAd(_ads[adItem.id]!);
             break;
           case AdEvent.opened:
             break;
           case AdEvent.closed:
           case AdEvent.leave:
-            // Must destroy when closed, otherwise ad state gets stuck
+            _loadedFlags.remove(adItem.id);
             try {
               (_ads[adItem.id] as InterstitialAd?)?.destroy();
             } catch (_) {}
             _ads.remove(adItem.id);
+            Future.delayed(const Duration(milliseconds: 600), () {
+              if (!_ads.containsKey(adItem.id)) {
+                _loadInterstitialAd(adItem, null, null, null, 0);
+              }
+            });
             break;
           default:
             break;
@@ -46,6 +66,7 @@ extension InterstitialAdEx on HuaweiAdvertisement {
     )..loadAd();
 
     _ads[adItem.id] = ad;
+    _loadedFlags[adItem.id] = false;
     return ad;
   }
 }

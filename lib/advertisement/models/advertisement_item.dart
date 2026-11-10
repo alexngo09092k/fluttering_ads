@@ -78,16 +78,18 @@ class AdvertisementItem {
       showOnScreens: List<String>.from(map['showOnScreens'] ?? []),
       hideOnScreens: List<String>.from(map['hideOnScreens'] ?? []),
       waitingTimeToDisplay: Duration(milliseconds: int.parse('${map['waitingTimeToDisplay'] ?? 0}')),
-      width: map['width'] is String ? double.tryParse('${map['width']}') : null,
-      height: map['width'] is String ? double.tryParse('${map['height']}') : null,
+      width: map['width'] != null ? double.tryParse('${map['width']}') : null,
+      height: map['height'] != null ? double.tryParse('${map['height']}') : null,
     );
   }
 
+  /// Banner / native / fluid / roll = widget (in-layout).
+  /// Interstitial / reward / splash = handle (fullscreen / programmatic).
+  /// Open app = openApp.
+  /// NOTE: Huawei banner MUST be widget (same as Google) for AdView to render it.
   AdvertisementViewType get viewType {
     switch (type) {
       case AdvertisementType.banner:
-        if (provider == AdvertisementProvider.huawei) return AdvertisementViewType.handle;
-        return AdvertisementViewType.widget;
       case AdvertisementType.native:
       case AdvertisementType.fluid:
       case AdvertisementType.roll:

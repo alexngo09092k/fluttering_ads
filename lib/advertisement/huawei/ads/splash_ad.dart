@@ -9,16 +9,17 @@ extension SplashAdEx on HuaweiAdvertisement {
   ]) {
     final ad = SplashAd(
       adType: SplashAdType.above,
-      ownerText: 'CUSTOM OWNER',
+      ownerText: '',
       loadListener: (SplashAdLoadEvent event, {int? errorCode}) {
-        Debug.log('loadSplashAd $event');
+        Debug.log('Huawei SplashAd $event code=$errorCode');
         switch (event) {
           case SplashAdLoadEvent.failedToLoad:
             if (onAdFailedToLoad != null) onAdFailedToLoad(errorCode);
+            try {
+              (_ads[adItem.id] as SplashAd?)?.destroy();
+            } catch (_) {}
             _ads.remove(adItem.id);
             break;
-          // case SplashAdLoadEvent.dismissed:
-          // break;
           case SplashAdLoadEvent.loaded:
             if (onLoadedAd != null) onLoadedAd(_ads[adItem.id]);
             if (onAd != null) onAd(_ads[adItem.id]!);

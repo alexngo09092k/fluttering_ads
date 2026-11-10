@@ -19,9 +19,18 @@ class HuaweiAdvertisement extends BaseAdvertisement {
   AdvertisementProvider get provider => AdvertisementProvider.huawei;
 
   final Map<String, dynamic> _ads = {};
+  /// True when the ad instance for [id] has fired loaded and is ready to show.
+  final Map<String, bool> _loadedFlags = {};
 
   InstreamAdViewController? _instreamAdViewController;
   NativeAdController? _nativeAdController;
+
+  /// Optional global reward callback set by host app.
+  void Function(AdvertisementItem item, Reward? reward)? _onRewardedGlobal;
+
+  void setOnRewarded(void Function(AdvertisementItem item, Reward? reward)? cb) {
+    _onRewardedGlobal = cb;
+  }
 
   @override
   Widget createAdWidget({
@@ -72,8 +81,20 @@ class HuaweiAdvertisement extends BaseAdvertisement {
               child: snapshot.data ?? const SizedBox(),
             ),
           );
+        case AdvertisementType.banner:
+          // BannerView is a Widget; BannerAd is NOT (use BannerAd only for overlay show()).
+          return Container(
+            width: width,
+            height: height,
+            alignment: Alignment.center,
+            child: _buildBannerView(
+              adItem,
+              onLoadedAd: onLoadedAd,
+              onAdFailedToLoad: onAdFailedToLoad,
+            ),
+          );
         default:
-          if(onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Can not found ads widget'));
+          if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Can not found ads widget'));
           return const SizedBox();
       }
     });
@@ -92,22 +113,22 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     }
     switch (adItem.type) {
       case AdvertisementType.banner:
-        _loadBannerAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
+        _loadBannerAd(adItem, onAd as Function(BannerAd)?, onLoadedAd, onAdFailedToLoad);
         break;
       case AdvertisementType.native:
-        _loadNativeAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
+        _loadNativeAd(adItem, onAd as Function(NativeAd)?, onLoadedAd, onAdFailedToLoad);
         break;
       case AdvertisementType.reward:
-        _loadRewardAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
+        _loadRewardAd(adItem, onAd as Function(RewardAd)?, onLoadedAd, onAdFailedToLoad);
         break;
       case AdvertisementType.interstitial:
-        _loadInterstitialAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
+        _loadInterstitialAd(adItem, onAd as Function(InterstitialAd)?, onLoadedAd, onAdFailedToLoad);
         break;
       case AdvertisementType.roll:
         _loadInstreamAdView(adItem, onAd, onLoadedAd, onAdFailedToLoad);
         break;
       case AdvertisementType.splash:
-        _loadSplashAd(adItem, onAd, onLoadedAd, onAdFailedToLoad);
+        _loadSplashAd(adItem, onAd as Function(SplashAd)?, onLoadedAd, onAdFailedToLoad);
         break;
       default:
         break;
@@ -122,16 +143,17 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     }
     switch (adItem.type) {
       case AdvertisementType.reward:
-        _loadRewardAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
+        // Load (or reuse), then show only when loaded.
+        _loadRewardAd(adItem, (ad) => ad.show(), null, onAdFailedToLoad);
         break;
       case AdvertisementType.interstitial:
-        _loadInterstitialAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
+        _loadInterstitialAd(adItem, (ad) => ad.show(), null, onAdFailedToLoad);
         break;
       case AdvertisementType.splash:
-        _loadSplashAd(adItem, (ad) => {}, (_) => {}, onAdFailedToLoad);
+        _loadSplashAd(adItem, null, null, onAdFailedToLoad);
         break;
       case AdvertisementType.banner:
-        _loadBannerAd(adItem, (ad) => ad.show(), (_) => {}, onAdFailedToLoad);
+        _loadBannerAd(adItem, (ad) => ad.show(), null, onAdFailedToLoad);
         break;
       default:
         break;
@@ -165,6 +187,7 @@ class HuaweiAdvertisement extends BaseAdvertisement {
           break;
       }
       _ads.remove(adItem.id);
+      _loadedFlags.remove(adItem.id);
     }
   }
 
@@ -218,13 +241,13 @@ class HuaweiAdvertisement extends BaseAdvertisement {
     }
   }
 
-    @override
+  @override
   Future<bool> initial() async {
     try {
       _isSupported = await CurrentPlatform.instance.isHmsAvailable;
       Debug.log('HuaweiAdvertisement is supported $_isSupported');
       return true;
-    }catch(error) {
+    } catch (error) {
       Debug.log("HuaweiAdvertisement initial error $error");
     }
     return false;

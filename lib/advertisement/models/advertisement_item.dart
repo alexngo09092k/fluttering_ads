@@ -84,7 +84,9 @@ class AdvertisementItem {
   }
 
   /// Banner / native / fluid / roll = widget (in-layout).
-  /// Interstitial / reward / splash = handle (fullscreen / programmatic).
+  /// Interstitial / reward = handle (fullscreen / programmatic).
+  /// Splash must NOT be treated as handle — it is launch-only and showing it
+  /// mid-session causes "ads that cannot be closed" rejections on AppGallery.
   /// Open app = openApp.
   /// NOTE: Huawei banner MUST be widget (same as Google) for AdView to render it.
   AdvertisementViewType get viewType {
@@ -96,8 +98,10 @@ class AdvertisementItem {
         return AdvertisementViewType.widget;
       case AdvertisementType.interstitial:
       case AdvertisementType.reward:
-      case AdvertisementType.splash:
         return AdvertisementViewType.handle;
+      case AdvertisementType.splash:
+        // Splash is intentionally excluded from handle so handleAd() never picks it.
+        return AdvertisementViewType.none;
       case AdvertisementType.openApp:
         return AdvertisementViewType.openApp;
       default:
@@ -105,9 +109,12 @@ class AdvertisementItem {
     }
   }
 
-  bool canShow(String? sceen) {
-    if (sceen == null) return false;
-    return (showOnScreens.contains(sceen) || showOnScreens.isEmpty) && !hideOnScreens.contains(sceen);
+  bool canShow(String? screen) {
+    // Empty showOnScreens = allow on any screen (including before first route).
+    if (showOnScreens.isEmpty && hideOnScreens.isEmpty) return true;
+    if (screen == null) return false;
+    return (showOnScreens.contains(screen) || showOnScreens.isEmpty) &&
+        !hideOnScreens.contains(screen);
   }
 
   String toJson() => json.encode(toMap());

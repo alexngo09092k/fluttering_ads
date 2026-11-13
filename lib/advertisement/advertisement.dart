@@ -166,15 +166,25 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
           });
         }
       } else {
-        /// RANDOM LOAD FROM LOADED ADS
-        final adItems = _adLoadedList[AdvertisementViewType.handle]!.keys.where((element) => element.canShow(_screenName));
-        final adItem = adItems.isNotEmpty ? adItems.first : null;
-        if (adItem != null) {
-          final adLoaded = _adLoadedList[AdvertisementViewType.handle]!.values.first;
-          Future.delayed(adItem.waitingTimeToDisplay, () {
-            _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-            _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
-          });
+        /// Automatic placements (high-value / resume) only show interstitial.
+        /// Reward must be user-initiated (explicit ad argument).
+        /// Splash is excluded from handle viewType.
+        final candidates = _adLoadedList[AdvertisementViewType.handle]!
+            .keys
+            .where((element) =>
+                element.canShow(_screenName) &&
+                element.type == AdvertisementType.interstitial)
+            .toList();
+        if (candidates.isNotEmpty) {
+          final adItem = candidates.first;
+          final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
+          if (adLoaded != null) {
+            Future.delayed(adItem.waitingTimeToDisplay, () {
+              _advertisements[adItem.provider]!
+                  .showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+              _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
+            });
+          }
         }
       }
     }
@@ -236,35 +246,35 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// CHECKING ADS IS ENABLED
     if (!config.enable) return;
 
-    /// LOAD FROM LOADED ADS
     switch (state) {
       case AppState.background:
+        // Preload so ads are ready when user returns.
         restore();
         break;
       case AppState.foreground:
-        if (_adLoadedList[AdvertisementViewType.openApp] != null && _adLoadedList[AdvertisementViewType.openApp]!.isNotEmpty) {
-          var adItems = _adLoadedList[AdvertisementViewType.openApp]!.keys.where((element) => element.canShow(_screenName));
-          var adItem = adItems.isNotEmpty ? adItems.first : null;
+        // Only show dedicated openApp ads here.
+        // Interstitial/reward on resume are owned by the host app
+        // (AdRevenueManager) so premium checks + cooldowns are applied
+        // and we never double-fire with handleAd().
+        if (_adLoadedList[AdvertisementViewType.openApp] != null &&
+            _adLoadedList[AdvertisementViewType.openApp]!.isNotEmpty) {
+          final adItems = _adLoadedList[AdvertisementViewType.openApp]!
+              .keys
+              .where((element) => element.canShow(_screenName));
+          final adItem = adItems.isNotEmpty ? adItems.first : null;
           if (adItem != null) {
-            var adLoaded = _adLoadedList[AdvertisementViewType.openApp]![adItem];
+            final adLoaded =
+                _adLoadedList[AdvertisementViewType.openApp]![adItem];
             Future.delayed(adItem.waitingTimeToDisplay, () {
-              _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+              _advertisements[adItem.provider]!
+                  .showLoadedAd(loadedAd: adLoaded, type: adItem.type);
               _adLoadedList[AdvertisementViewType.openApp]!.remove(adItem);
-            });
-          }
-        } else if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
-          var adItems = _adLoadedList[AdvertisementViewType.handle]!.keys.where((element) => element.canShow(_screenName));
-          var adItem = adItems.isNotEmpty ? adItems.first : null;
-          if (adItem != null) {
-            var adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
-            Future.delayed(adItem.waitingTimeToDisplay, () {
-              _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
-              _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
             });
           }
         }
         break;
       default:
+        break;
     }
   }
 

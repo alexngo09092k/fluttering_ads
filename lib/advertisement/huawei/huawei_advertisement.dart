@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttering/fluttering.dart';
 import 'package:huawei_ads/huawei_ads.dart';
@@ -128,7 +130,9 @@ class HuaweiAdvertisement extends BaseAdvertisement {
         _loadInstreamAdView(adItem, onAd, onLoadedAd, onAdFailedToLoad);
         break;
       case AdvertisementType.splash:
-        _loadSplashAd(adItem, onAd as Function(SplashAd)?, onLoadedAd, onAdFailedToLoad);
+        // Never load/show splash via generic loadAd (restore / handle).
+        // Splash is cold-start only — see showSplashAndWait + willSplash.
+        Debug.log('Huawei loadAd(splash) ignored — use showSplashAndWait only at cold start');
         break;
       default:
         break;
@@ -150,7 +154,9 @@ class HuaweiAdvertisement extends BaseAdvertisement {
         _loadInterstitialAd(adItem, (ad) => ad.show(), null, onAdFailedToLoad);
         break;
       case AdvertisementType.splash:
-        _loadSplashAd(adItem, null, null, onAdFailedToLoad);
+        // Do NOT show splash via generic showAd — only via showSplashAndWait
+        // during willSplash / cold start (AppGallery rule 5.2).
+        Debug.log('Huawei showAd(splash) ignored — use showSplashAndWait only at cold start');
         break;
       case AdvertisementType.banner:
         _loadBannerAd(adItem, (ad) => ad.show(), null, onAdFailedToLoad);
@@ -158,6 +164,45 @@ class HuaweiAdvertisement extends BaseAdvertisement {
       default:
         break;
     }
+  }
+
+  /// Shows the splash ad and completes when it is dismissed, fails, or times out.
+  /// Must only be called from cold-start (willSplash). Never from restore/handleAd.
+  Future<void> showSplashAndWait(
+    AdvertisementItem adItem, {
+    Duration timeout = const Duration(seconds: 8),
+  }) async {
+    if (!isSupported) return;
+    if (adItem.type != AdvertisementType.splash) return;
+
+    final completer = Completer<void>();
+    Timer? timer;
+    timer = Timer(timeout, () {
+      if (!completer.isCompleted) {
+        Debug.log('Huawei SplashAd timed out after ${timeout.inSeconds}s');
+        try {
+          (_ads[adItem.id] as SplashAd?)?.destroy();
+        } catch (_) {}
+        _ads.remove(adItem.id);
+        completer.complete();
+      }
+    });
+
+    _loadSplashAd(
+      adItem,
+      null,
+      null,
+      (error) {
+        Debug.log('Huawei SplashAd failed: $error');
+        if (!completer.isCompleted) completer.complete();
+      },
+      () {
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+
+    await completer.future;
+    timer.cancel();
   }
 
   @override

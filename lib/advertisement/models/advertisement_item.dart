@@ -85,8 +85,9 @@ class AdvertisementItem {
 
   /// Banner / native / fluid / roll = widget (in-layout).
   /// Interstitial / reward = handle (fullscreen / programmatic).
-  /// Splash must NOT be treated as handle — it is launch-only and showing it
-  /// mid-session causes "ads that cannot be closed" rejections on AppGallery.
+  /// Splash = none: launch-only. Shown exclusively via willSplash →
+  /// HuaweiAdvertisement.showSplashAndWait. restore() and handleAd() skip it.
+  /// Mid-session splash causes AppGallery "ad does not close" (rule 5.2).
   /// Open app = openApp.
   /// NOTE: Huawei banner MUST be widget (same as Google) for AdView to render it.
   AdvertisementViewType get viewType {
@@ -100,7 +101,7 @@ class AdvertisementItem {
       case AdvertisementType.reward:
         return AdvertisementViewType.handle;
       case AdvertisementType.splash:
-        // Splash is intentionally excluded from handle so handleAd() never picks it.
+        // Cold-start only (willSplash). Never restore / handleAd.
         return AdvertisementViewType.none;
       case AdvertisementType.openApp:
         return AdvertisementViewType.openApp;

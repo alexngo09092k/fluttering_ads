@@ -47,6 +47,40 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     return super.willOpenApp();
   }
 
+  /// Cold-start only. Shows Huawei SplashAd (loadAd = display) and waits
+  /// until it is dismissed / failed / timed out so the Flutter SplashPage
+  /// can continue. Prevents mid-session splash that causes AppGallery
+  /// "ad does not close" rejections (rule 5.2).
+  @override
+  Future<bool> willSplash() async {
+    if (!config.enable) return true;
+
+    final splashItems = config.ads
+        .where((a) => a.type == AdvertisementType.splash)
+        .toList();
+    if (splashItems.isEmpty) return true;
+
+    for (final adItem in splashItems) {
+      final provider = _advertisements[adItem.provider];
+      if (provider == null || !provider.isSupported) continue;
+
+      if (provider is HuaweiAdvertisement) {
+        try {
+          Debug.log('AwesomeAdvertisement willSplash → show Huawei splash ${adItem.id}');
+          await provider.showSplashAndWait(
+            adItem,
+            timeout: const Duration(seconds: 8),
+          );
+        } catch (e) {
+          Debug.log('AwesomeAdvertisement willSplash splash error: $e');
+        }
+      }
+      // Only one splash per cold start.
+      break;
+    }
+    return true;
+  }
+
   @override
   void initial(AdvertisementConfig config) async {
     _config = config;
@@ -102,6 +136,12 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// LOAD ALL ADS
     for (var ad in config.ads) {
       if (viewType != null && ad.viewType != viewType) continue;
+
+      // Splash (viewType.none) must NEVER be loaded via restore.
+      // Huawei SplashAd.loadAd() displays immediately; mid-session show
+      // causes AppGallery rejection: "ad does not close" (rule 5.2).
+      // Splash is only shown once during willSplash / cold start.
+      if (ad.viewType == AdvertisementViewType.none) continue;
 
       if (_advertisements.containsKey(ad.provider)) {
         if (_advertisements[ad.provider]!.isSupported) {

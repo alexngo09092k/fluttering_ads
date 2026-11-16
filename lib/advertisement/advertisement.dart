@@ -12,7 +12,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate  implements ProviderObserver {
   AdvertisementConfig get config;
 
-  void initial(AdvertisementConfig config);
+  Future<void> initial(AdvertisementConfig config);
 
   void restore();
 
@@ -82,7 +82,7 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   }
 
   @override
-  void initial(AdvertisementConfig config) async {
+  Future<void> initial(AdvertisementConfig config) async {
     _config = config;
 
     /// CHECKING ADS IS ENABLED
@@ -265,9 +265,26 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
         return adLoaded;
       }
 
-      /// RANDOM LOAD FROM LOADED ADS
-      final adItems = _adLoadedList[AdvertisementViewType.widget]!.keys.where((element) => element.canShow(_screenName));
-      final adItem = adItems.isNotEmpty ? adItems.first : null;
+      /// Prefer banner/native over roll (instream) for in-layout slots.
+      /// Roll is video-style and unsuitable for small banner areas (AppGallery UX).
+      final candidates = _adLoadedList[AdvertisementViewType.widget]!
+          .keys
+          .where((element) => element.canShow(_screenName))
+          .toList();
+      AdvertisementItem? adItem;
+      for (final preferred in const [
+        AdvertisementType.banner,
+        AdvertisementType.native,
+        AdvertisementType.fluid,
+        AdvertisementType.roll,
+      ]) {
+        final match = candidates.where((e) => e.type == preferred);
+        if (match.isNotEmpty) {
+          adItem = match.first;
+          break;
+        }
+      }
+      adItem ??= candidates.isNotEmpty ? candidates.first : null;
       if (adItem != null) {
         final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
         _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);

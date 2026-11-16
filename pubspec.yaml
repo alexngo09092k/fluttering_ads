@@ -1,7 +1,7 @@
 name: fluttering_ads
 description: Ads for fluttering (support google ad and huawei ad).
 publish_to: none
-version: 3.0.4
+version: 3.0.5
 homepage:
 
 environment:
@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   fluttering:
     git:
-      url: git@github.com:brennan992k/fluttering.git
+      url: git@github.com:alexngo09092k/fluttering.git
   google_mobile_ads: ^9.2.0
   huawei_ads: ^13.4.90+300
 

@@ -1,39 +1,85 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# fluttering_ads
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+**Unified ads module for the [Fluttering](https://pub.dev/packages/fluttering) toolkit.**
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+Supports **Google AdMob** and **Huawei Ads** with a single API for banner, interstitial, rewarded, splash, native, and app-open ads.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+---
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Single entry point: `AwesomeAdvertisement`
+- Providers: Google (`google_mobile_ads`) + Huawei (`huawei_ads`)
+- Ad types: banner, interstitial, rewarded, splash, native, app-open
+- Config-driven (`AdvertisementConfig` + list of `AdvertisementItem`)
+- Integrates with Fluttering lifecycle (`ProviderDelegate`, splash hooks)
+- Widget helper: `AdBuilder` / `widgetAd`
+
+---
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+```yaml
+dependencies:
+  fluttering: ^3.0.0
+  fluttering_ads: ^3.0.5
+```
+
+### Platform setup
+
+Follow the official setup guides for:
+
+- [Google Mobile Ads](https://developers.google.com/admob/flutter/quick-start)
+- [Huawei Ads Kit](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/publisher-service-introduction-0000001070671805)
+
+---
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+```dart
+import 'package:fluttering_ads/fluttering_ads.dart';
+
+// 1. Configure
+final config = AdvertisementConfig(
+  enable: true,
+  ads: [
+    AdvertisementItem(
+      id: 'ca-app-pub-xxx/banner',
+      type: AdvertisementType.banner,
+      provider: AdvertisementProvider.google,
+    ),
+    // ... more items (interstitial, rewarded, splash, native, ...)
+  ],
+);
+
+// 2. Initialize (usually after AwesomeApp starts)
+await AwesomeAdvertisement.instance.initial(config);
+
+// 3. Show / get widget
+final banner = AwesomeAdvertisement.instance.widgetAd(
+  ad: config.ads.firstWhere((a) => a.type == AdvertisementType.banner),
+);
+
+// Or trigger interstitial / rewarded via handleAd(...)
+AwesomeAdvertisement.instance.handleAd(ad: interstitialItem);
+```
+
+Register the provider with Fluttering if you want lifecycle integration:
 
 ```dart
-const like = 'sample';
+AwesomeApp(
+  app: MyApp(),
+  providers: [
+    ThemeProvider(),
+    // AwesomeAdvertisement is a singleton Provider – register if needed
+  ],
+).run();
 ```
+
+---
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+- Depends on the core **fluttering** package.
+- Author: Brennan Ngo / ThemePlace
+- License: MIT

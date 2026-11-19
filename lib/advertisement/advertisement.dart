@@ -9,7 +9,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 //! READ https://developers.google.com/admob/flutter/app-open
 
-abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate  implements ProviderObserver {
+abstract class IAwesomeAdvertisement extends Provider
+    with ProviderDelegate
+    implements ProviderObserver {
   AdvertisementConfig get config;
 
   Future<void> initial(AdvertisementConfig config);
@@ -18,11 +20,15 @@ abstract class IAwesomeAdvertisement extends Provider with ProviderDelegate  imp
 
   void handleAd({AdvertisementItem? ad});
 
-  Widget? widgetAd({AdvertisementItem? ad, Function(dynamic)? onLoadedAd, Function(dynamic)? onAdFailedToLoad});
+  Widget? widgetAd(
+      {AdvertisementItem? ad,
+      Function(dynamic)? onLoadedAd,
+      Function(dynamic)? onAdFailedToLoad});
 }
 
 class AwesomeAdvertisement extends IAwesomeAdvertisement {
-  static final IAwesomeAdvertisement _instance = AwesomeAdvertisement._internal();
+  static final IAwesomeAdvertisement _instance =
+      AwesomeAdvertisement._internal();
   static IAwesomeAdvertisement get instance => _instance;
 
   factory AwesomeAdvertisement() => _instance as AwesomeAdvertisement;
@@ -33,7 +39,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   @override
   AdvertisementConfig get config => _config;
 
-  final Map<AdvertisementViewType, Map<AdvertisementItem, dynamic>> _adLoadedList = {};
+  final Map<AdvertisementViewType, Map<AdvertisementItem, dynamic>>
+      _adLoadedList = {};
 
   final Map<AdvertisementProvider, BaseAdvertisement> _advertisements = {};
 
@@ -55,9 +62,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   Future<bool> willSplash() async {
     if (!config.enable) return true;
 
-    final splashItems = config.ads
-        .where((a) => a.type == AdvertisementType.splash)
-        .toList();
+    final splashItems =
+        config.ads.where((a) => a.type == AdvertisementType.splash).toList();
     if (splashItems.isEmpty) return true;
 
     for (final adItem in splashItems) {
@@ -66,7 +72,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
 
       if (provider is HuaweiAdvertisement) {
         try {
-          Debug.log('AwesomeAdvertisement willSplash → show Huawei splash ${adItem.id}');
+          Debug.log(
+              'AwesomeAdvertisement willSplash → show Huawei splash ${adItem.id}');
           await provider.showSplashAndWait(
             adItem,
             timeout: const Duration(seconds: 8),
@@ -92,18 +99,18 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     _advertisements.clear();
     for (var provider in _config.providers) {
       BaseAdvertisement? adProvider;
-      if(!_advertisements.containsKey(provider)) {
-        if(provider == AdvertisementProvider.google) {
+      if (!_advertisements.containsKey(provider)) {
+        if (provider == AdvertisementProvider.google) {
           adProvider = GoogleAdvertisement();
-        }else if(provider == AdvertisementProvider.huawei) {
+        } else if (provider == AdvertisementProvider.huawei) {
           adProvider = HuaweiAdvertisement();
-        }else if(provider ==  AdvertisementProvider.custom) {
+        } else if (provider == AdvertisementProvider.custom) {
           adProvider = CustomAdvertisement();
         }
       }
-      if(adProvider != null) {
+      if (adProvider != null) {
         final done = await adProvider.initial();
-        if(done) _advertisements[provider] = adProvider;
+        if (done) _advertisements[provider] = adProvider;
       }
     }
 
@@ -119,9 +126,11 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// GOOGLE ADS MOBILE INITITAL
     if (googleAds) {
       MobileAds.instance.initialize().then((InitializationStatus status) {
-        Debug.log('Google Mobile Ads Initialization Done: ${status.adapterStatuses}');
+        Debug.log(
+            'Google Mobile Ads Initialization Done: ${status.adapterStatuses}');
         MobileAds.instance.updateRequestConfiguration(RequestConfiguration(
-          tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
+          tagForChildDirectedTreatment:
+              TagForChildDirectedTreatment.unspecified,
         ));
       });
     }
@@ -167,13 +176,15 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
                 );
 
             /// WIDGET ADS (BANNER, FLUID, ROLL)
-            _adLoadedList[ad.viewType]!.addEntries([MapEntry(ad, widgetBuilder)]);
+            _adLoadedList[ad.viewType]!
+                .addEntries([MapEntry(ad, widgetBuilder)]);
           } else {
             /// OPEN APP ADS AND HANDLER ADS
             _advertisements[ad.provider]!.loadAd(
               adItem: ad,
               onLoadedAd: (loadedAd) {
-                _adLoadedList[ad.viewType]!.addEntries([MapEntry(ad, loadedAd)]);
+                _adLoadedList[ad.viewType]!
+                    .addEntries([MapEntry(ad, loadedAd)]);
               },
             );
           }
@@ -187,7 +198,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// CHECKING ADS IS ENABLED
     if (!config.enable) return;
 
-    if (_adLoadedList[AdvertisementViewType.handle] != null && _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
+    if (_adLoadedList[AdvertisementViewType.handle] != null &&
+        _adLoadedList[AdvertisementViewType.handle]!.isNotEmpty) {
       if (ad != null) {
         final adItem = ad;
         if (!adItem.canShow(_screenName)) return;
@@ -196,7 +208,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
           /// LOAD FROM LOADED ADS
           final adLoaded = _adLoadedList[AdvertisementViewType.handle]![adItem];
           Future.delayed(adItem.waitingTimeToDisplay, () {
-            _advertisements[adItem.provider]!.showLoadedAd(loadedAd: adLoaded, type: adItem.type);
+            _advertisements[adItem.provider]!
+                .showLoadedAd(loadedAd: adLoaded, type: adItem.type);
             _adLoadedList[AdvertisementViewType.handle]!.remove(adItem);
           });
         } else {
@@ -234,24 +247,32 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   }
 
   @override
-  Widget? widgetAd({AdvertisementItem? ad, Function(dynamic)? onLoadedAd, Function(dynamic)? onAdFailedToLoad}) {
+  Widget? widgetAd(
+      {AdvertisementItem? ad,
+      Function(dynamic)? onLoadedAd,
+      Function(dynamic)? onAdFailedToLoad}) {
     /// CHECKING ADS IS ENABLED
     if (!config.enable) {
-      if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Advertisement is not enabled'));
+      if (onAdFailedToLoad != null)
+        onAdFailedToLoad(ErrorDescription('Advertisement is not enabled'));
       return null;
     }
 
-    if (_adLoadedList[AdvertisementViewType.widget] != null && _adLoadedList[AdvertisementViewType.widget]!.isNotEmpty) {
+    if (_adLoadedList[AdvertisementViewType.widget] != null &&
+        _adLoadedList[AdvertisementViewType.widget]!.isNotEmpty) {
       if (ad != null) {
         final adItem = ad;
         if (!adItem.canShow(_screenName)) {
-          if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Advertisement is not enabled the screen $_screenName'));
+          if (onAdFailedToLoad != null)
+            onAdFailedToLoad(ErrorDescription(
+                'Advertisement is not enabled the screen $_screenName'));
           return null;
         }
 
         if (_adLoadedList[AdvertisementViewType.widget]!.containsKey(ad)) {
           /// LOAD FROM LOADED ADS
-          final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
+          final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](
+              onLoadedAd, onAdFailedToLoad);
           _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
           return adLoaded;
         }
@@ -286,7 +307,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
       }
       adItem ??= candidates.isNotEmpty ? candidates.first : null;
       if (adItem != null) {
-        final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](onLoadedAd, onAdFailedToLoad);
+        final adLoaded = _adLoadedList[AdvertisementViewType.widget]![adItem](
+            onLoadedAd, onAdFailedToLoad);
         _adLoadedList[AdvertisementViewType.widget]!.remove(adItem);
         return adLoaded;
       }
@@ -295,7 +317,8 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
     /// RESTORE ADS
     restore(AdvertisementViewType.widget);
 
-    if (onAdFailedToLoad != null) onAdFailedToLoad(ErrorDescription('Advertisement is not found'));
+    if (onAdFailedToLoad != null)
+      onAdFailedToLoad(ErrorDescription('Advertisement is not found'));
     return null;
   }
 
@@ -353,6 +376,13 @@ class AwesomeAdvertisement extends IAwesomeAdvertisement {
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     if (newRoute is PageRoute) {
       _sendScreenView(newRoute);
+    }
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (previousRoute is PageRoute && route is PageRoute) {
+      _sendScreenView(previousRoute);
     }
   }
 
